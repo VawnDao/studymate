@@ -15,6 +15,10 @@ class StartPodcastUseCase @Inject constructor(private val podcasts: PodcastRepos
     suspend operator fun invoke(documentId: String): AppResult<Podcast> = podcasts.start(documentId)
 }
 
+class GetPodcastStatusUseCase @Inject constructor(private val podcasts: PodcastRepository) {
+    suspend operator fun invoke(documentId: String): AppResult<Podcast> = podcasts.status(documentId)
+}
+
 class ObservePodcastUseCase @Inject constructor(private val podcasts: PodcastRepository) {
     operator fun invoke(documentId: String, pollInterval: Duration = 5.seconds): Flow<AppResult<Podcast>> = flow {
         var delayDuration = pollInterval

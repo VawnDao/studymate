@@ -32,6 +32,7 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
+import java.util.Locale
 import java.util.concurrent.TimeUnit
 import javax.inject.Qualifier
 import javax.inject.Singleton
@@ -97,6 +98,15 @@ internal object DataModule {
             .readTimeout(60, TimeUnit.SECONDS)
             .writeTimeout(60, TimeUnit.SECONDS)
             .callTimeout(90, TimeUnit.SECONDS)
+            .addInterceptor { chain ->
+                val req = chain.request()
+                val updated = if (req.header("Accept-Language") == null) {
+                    req.newBuilder().header("Accept-Language", Locale.getDefault().toLanguageTag()).build()
+                } else {
+                    req
+                }
+                chain.proceed(updated)
+            }
             .addInterceptor(MobileBearerInterceptor(tokenStore))
             .authenticator(
                 MobileSessionAuthenticator(
