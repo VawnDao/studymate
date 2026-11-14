@@ -118,3 +118,12 @@ data class CitationDto(
     val page: Int,
     val quote: String? = null,
 )
+
+@Serializable
+data class PodcastStatusDto(
+    val status: String,
+    val title: String = "",
+    val script: String = "",
+    @SerialName("audio_url") val audioUrl: String? = null,
+    @SerialName("ai_generated") val aiGenerated: Boolean = true,
+)

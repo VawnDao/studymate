@@ -26,3 +26,6 @@ data class QuizRoute(val documentId: String)
 
 @Serializable
 data class TutorRoute(val documentId: String)
+
+@Serializable
+data class PodcastRoute(val documentId: String)

@@ -10,6 +10,7 @@ import com.studymate.data.remote.dto.DocumentStatusDto
 import com.studymate.data.remote.dto.StudyPackDto
 import com.studymate.data.remote.dto.TutorReplyDto
 import com.studymate.data.remote.dto.TutorRequestDto
+import com.studymate.data.remote.dto.PodcastStatusDto
 import com.studymate.domain.common.TimeProvider
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.util.concurrent.ConcurrentHashMap
@@ -132,6 +133,25 @@ internal class FakeStudyMateApi @Inject constructor(
         documents.remove(documentId)
         return Response.success(204, Unit)
     }
+
+    override suspend fun createPodcast(documentId: String): PodcastStatusDto {
+        delay(LATENCY_MS)
+        return PodcastStatusDto(status = "generating", aiGenerated = true)
+    }
+
+    override suspend fun getPodcast(documentId: String): PodcastStatusDto {
+        delay(LATENCY_MS)
+        return PodcastStatusDto(
+            status = "ready",
+            title = "Ôn tập nhanh từ tài liệu",
+            script = "Xin chào! Đây là bản tóm tắt âm thanh do AI tạo từ tài liệu của bạn.",
+            audioUrl = null,
+            aiGenerated = true,
+        )
+    }
+
+    override suspend fun streamPodcastAudio(documentId: String): okhttp3.ResponseBody =
+        ByteArray(0).toResponseBody("audio/mpeg".toMediaType())
 
     private fun readAsset(path: String): String =
         context.assets.open(path).bufferedReader(Charsets.UTF_8).use { it.readText() }

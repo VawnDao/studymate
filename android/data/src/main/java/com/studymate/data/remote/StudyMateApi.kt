@@ -2,6 +2,7 @@ package com.studymate.data.remote
 
 import com.studymate.data.remote.dto.ChunkDto
 import com.studymate.data.remote.dto.DocumentStatusDto
+import com.studymate.data.remote.dto.PodcastStatusDto
 import com.studymate.data.remote.dto.StudyPackDto
 import com.studymate.data.remote.dto.TutorReplyDto
 import com.studymate.data.remote.dto.TutorRequestDto
@@ -14,6 +15,7 @@ import retrofit2.http.Multipart
 import retrofit2.http.POST
 import retrofit2.http.Part
 import retrofit2.http.Path
+import retrofit2.http.Streaming
 
 /** Hợp đồng StudyMate API v1; MobileSessionAuthenticator handles anonymous bearer sessions. */
 interface StudyMateApi {
@@ -37,4 +39,14 @@ interface StudyMateApi {
 
     @DELETE("v1/documents/{id}")
     suspend fun deleteDocument(@Path("id") documentId: String): Response<Unit>
+
+    @POST("v1/documents/{id}/podcast")
+    suspend fun createPodcast(@Path("id") documentId: String): PodcastStatusDto
+
+    @GET("v1/documents/{id}/podcast")
+    suspend fun getPodcast(@Path("id") documentId: String): PodcastStatusDto
+
+    @Streaming
+    @GET("v1/documents/{id}/podcast/audio")
+    suspend fun streamPodcastAudio(@Path("id") documentId: String): okhttp3.ResponseBody
 }

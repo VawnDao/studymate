@@ -18,11 +18,13 @@ import com.studymate.data.remote.StudyMateApi
 import com.studymate.data.repository.DocumentRepositoryImpl
 import com.studymate.data.repository.StudyRepositoryImpl
 import com.studymate.data.repository.TutorRepositoryImpl
+import com.studymate.data.repository.PodcastRepositoryImpl
 import com.studymate.data.time.SystemTimeProvider
 import com.studymate.domain.common.TimeProvider
 import com.studymate.domain.repository.DocumentRepository
 import com.studymate.domain.repository.StudyRepository
 import com.studymate.domain.repository.TutorRepository
+import com.studymate.domain.repository.PodcastRepository
 import dagger.Binds
 import dagger.Lazy
 import dagger.Module
@@ -157,6 +159,9 @@ internal abstract class BindingModule {
 
     @Binds
     abstract fun bindTutorRepository(impl: TutorRepositoryImpl): TutorRepository
+
+    @Binds
+    abstract fun bindPodcastRepository(impl: PodcastRepositoryImpl): PodcastRepository
 
     @Binds
     abstract fun bindLocalFileSource(impl: AndroidLocalFileSource): LocalFileSource

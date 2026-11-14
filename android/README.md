@@ -25,6 +25,8 @@ Cấu hình trong `local.properties` (không commit):
 
 Khi dùng API thật, app tự gọi `POST /v1/auth/session`, lưu bearer token đã mã hoá bằng Android Keystore và tự xin session mới khi token hết hạn hoặc bị backend từ chối. Không cần cấu hình hay nhúng `APP_TOKEN`/OpenAI key trong app.
 
+Từ Hub của tài liệu đã `ready`, chọn **Podcast** để tạo audio tóm tắt. App poll có backoff, hiển thị script và phát MP3 bằng Media3; player luôn gắn Bearer session và hiển thị nhãn **Audio do AI tạo**.
+
 ## Kiến trúc (Clean Architecture, 3 module)
 
 ```

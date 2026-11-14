@@ -20,6 +20,7 @@ import com.studymate.app.ui.feature.quiz.QuizRoute as QuizScreenRoute
 import com.studymate.app.ui.feature.summary.SummaryRoute as SummaryScreenRoute
 import com.studymate.app.ui.feature.today.TodayRoute as TodayScreenRoute
 import com.studymate.app.ui.feature.tutor.TutorRoute as TutorScreenRoute
+import com.studymate.app.ui.feature.podcast.PodcastRoute as PodcastScreenRoute
 import com.studymate.app.ui.theme.Motion
 import com.studymate.domain.model.DocumentWithDue
 import com.studymate.domain.model.ProcessingStatus
@@ -86,6 +87,7 @@ fun StudyMateNavHost(
                 onOpenCards = { navController.navigate(CardsRoute(documentId)) },
                 onOpenQuiz = { navController.navigate(QuizRoute(documentId)) },
                 onOpenTutor = { navController.navigate(TutorRoute(documentId)) },
+                onOpenPodcast = { navController.navigate(PodcastRoute(documentId)) },
             )
         }
         composable<SummaryRoute> { entry ->
@@ -112,6 +114,9 @@ fun StudyMateNavHost(
         }
         composable<TutorRoute> {
             TutorScreenRoute(onBack = { navController.popBackStack() })
+        }
+        composable<PodcastRoute> {
+            PodcastScreenRoute(onBack = { navController.popBackStack() })
         }
     }
 }

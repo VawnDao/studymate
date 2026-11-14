@@ -100,8 +100,17 @@
     <string name="hub_quiz">Quiz</string>
     <string name="hub_tutor">Gia sư AI</string>
     <string name="hub_tutor_sub">Gợi mở, không cho đáp án ngay</string>
+    <string name="hub_podcast">Podcast</string>
+    <string name="hub_podcast_sub">Nghe tóm tắt do AI tạo</string>
     <string name="hub_trust">Mọi nội dung chỉ lấy từ tài liệu của bạn. Chạm Nguồn để xem đoạn gốc.</string>
     <string name="hub_error_title">Chưa tải được bộ ôn tập</string>
+    <string name="podcast_title">Podcast từ tài liệu</string>
+    <string name="podcast_intro">Tạo một audio tóm tắt để nghe lại tài liệu khi di chuyển hoặc nghỉ giải lao.</string>
+    <string name="podcast_ai_badge">Audio do AI tạo</string>
+    <string name="podcast_create">Tạo podcast</string>
+    <string name="podcast_error_title">Chưa tạo được podcast</string>
+    <string name="podcast_failed">Podcast chưa sẵn sàng. Bạn có thể thử lại.</string>
+    <string name="podcast_no_audio">Backend chưa trả đường dẫn audio. Bạn vẫn có thể đọc script.</string>
     <string name="pack_missing_title">Chưa có bộ ôn tập</string>
     <string name="pack_missing_body">Quay lại trang tài liệu để tải bộ ôn tập về máy.</string>
 

@@ -127,6 +127,7 @@ interface StudyMateApi {
 
 - `MobileBearerInterceptor` thêm bearer token còn hạn. Nếu chưa có session hoặc backend trả `401`, `MobileSessionAuthenticator` gọi `POST /v1/auth/session` bằng HTTP client riêng không gắn auth, lưu token vào SharedPreferences được mã hoá bằng khoá Android Keystore, rồi thử lại request một lần.
 - Session mobile ẩn danh hết hạn sau 24 giờ; app tự xin session mới. Không nhúng `APP_TOKEN` hay OpenAI key vào app.
+- Podcast: từ Hub của tài liệu `ready`, app gọi `POST /v1/documents/{id}/podcast`, poll `GET` với backoff 5 → 10 → 20 giây, rồi hiển thị title/script và phát `audio_url` bằng Media3 ExoPlayer. Audio stream nhận cùng `Authorization: Bearer` token; player không tải toàn bộ MP3 vào bộ nhớ.
 - Timeout OkHttp: connect 10 s, read 60 s (upload), call 90 s.
 - JSON: `Json { ignoreUnknownKeys = true; explicitNulls = false }`.
 

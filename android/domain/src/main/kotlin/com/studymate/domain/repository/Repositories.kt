@@ -5,6 +5,7 @@ import com.studymate.domain.model.Document
 import com.studymate.domain.model.DocumentInput
 import com.studymate.domain.model.Flashcard
 import com.studymate.domain.model.ProcessingState
+import com.studymate.domain.model.Podcast
 import com.studymate.domain.model.QuizAttempt
 import com.studymate.domain.model.ReviewSchedule
 import com.studymate.domain.model.SourceChunk
@@ -47,4 +48,10 @@ interface StudyRepository {
 
 interface TutorRepository {
     suspend fun ask(documentId: String, messages: List<TutorMessage>, hintLevel: Int): AppResult<TutorReply>
+}
+
+interface PodcastRepository {
+    suspend fun start(documentId: String): AppResult<Podcast>
+    suspend fun status(documentId: String): AppResult<Podcast>
+    suspend fun accessToken(): String?
 }

@@ -2,6 +2,7 @@ package com.studymate.data.remote.mapper
 
 import com.studymate.data.remote.dto.ChunkDto
 import com.studymate.data.remote.dto.DocumentStatusDto
+import com.studymate.data.remote.dto.PodcastStatusDto
 import com.studymate.data.remote.dto.StudyPackDto
 import com.studymate.data.remote.dto.TutorMessageDto
 import com.studymate.data.remote.dto.TutorReplyDto
@@ -11,6 +12,8 @@ import com.studymate.domain.model.Concept
 import com.studymate.domain.model.FlashcardContent
 import com.studymate.domain.model.OutlineSection
 import com.studymate.domain.model.ProcessingState
+import com.studymate.domain.model.Podcast
+import com.studymate.domain.model.PodcastStatus
 import com.studymate.domain.model.ProcessingStatus
 import com.studymate.domain.model.QuizItem
 import com.studymate.domain.model.SourceChunk
@@ -75,6 +78,15 @@ internal fun TutorReplyDto.toDomain() = TutorReply(
     nextQuestion = nextQuestion?.takeIf { it.isNotBlank() },
     citations = citations.map { Citation(it.chunkId, it.page, it.quote?.takeIf(String::isNotBlank)) },
     inDocument = inDocument,
+)
+
+internal fun PodcastStatusDto.toDomain(documentId: String) = Podcast(
+    documentId = documentId,
+    title = title,
+    script = script,
+    audioUrl = audioUrl,
+    status = PodcastStatus.fromWire(status),
+    aiGenerated = aiGenerated,
 )
 
 private const val QUIZ_OPTIONS = 4

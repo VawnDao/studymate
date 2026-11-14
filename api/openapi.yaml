@@ -147,6 +147,48 @@ paths:
         '422': { $ref: '#/components/responses/Error' }
         '503': { $ref: '#/components/responses/Error' }
 
+  /v1/documents/{id}/podcast:
+    parameters:
+      - $ref: '#/components/parameters/DocumentId'
+    post:
+      summary: Bắt đầu tạo podcast audio từ tài liệu ready
+      responses:
+        '200':
+          description: Audio đã có sẵn
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PodcastStatus' }
+        '202':
+          description: Đang tạo audio
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PodcastStatus' }
+        '409': { $ref: '#/components/responses/Error' }
+        '401': { $ref: '#/components/responses/Error' }
+    get:
+      summary: Đọc trạng thái podcast
+      responses:
+        '200':
+          description: generating, ready hoặc failed
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/PodcastStatus' }
+        '401': { $ref: '#/components/responses/Error' }
+
+  /v1/documents/{id}/podcast/audio:
+    parameters:
+      - $ref: '#/components/parameters/DocumentId'
+    get:
+      summary: Stream MP3 podcast (hỗ trợ byte ranges)
+      responses:
+        '200':
+          description: Audio MP3
+          content:
+            audio/mpeg: { schema: { type: string, format: binary } }
+        '206': { description: Partial MP3 response }
+        '401': { $ref: '#/components/responses/Error' }
+        '404': { $ref: '#/components/responses/Error' }
+
   /healthz:
     get:
       security: []
@@ -214,6 +256,16 @@ components:
         token_type: { type: string, enum: [Bearer] }
         expires_in: { type: integer, const: 86400 }
         expires_at: { type: string, format: date-time }
+
+    PodcastStatus:
+      type: object
+      required: [status, ai_generated]
+      properties:
+        status: { type: string, enum: [generating, ready, failed] }
+        title: { type: string }
+        script: { type: string }
+        audio_url: { type: string, format: uri, nullable: true }
+        ai_generated: { type: boolean, const: true }
 
     DocumentStatus:
       type: object

@@ -15,6 +15,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Forum
+import androidx.compose.material.icons.outlined.Headphones
 import androidx.compose.material.icons.outlined.Lightbulb
 import androidx.compose.material.icons.outlined.Quiz
 import androidx.compose.material.icons.outlined.Style
@@ -62,6 +63,7 @@ fun HubRoute(
     onOpenCards: () -> Unit,
     onOpenQuiz: () -> Unit,
     onOpenTutor: () -> Unit,
+    onOpenPodcast: () -> Unit,
     viewModel: HubViewModel = hiltViewModel(),
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
@@ -74,6 +76,7 @@ fun HubRoute(
         onOpenCards = onOpenCards,
         onOpenQuiz = onOpenQuiz,
         onOpenTutor = onOpenTutor,
+        onOpenPodcast = onOpenPodcast,
         onOpenSource = { chunkId -> source = SourceRequest(viewModel.documentId, chunkId) },
     )
     source?.let { SourceSheet(request = it, onDismiss = { source = null }) }
@@ -88,6 +91,7 @@ fun HubScreen(
     onOpenCards: () -> Unit,
     onOpenQuiz: () -> Unit,
     onOpenTutor: () -> Unit,
+    onOpenPodcast: () -> Unit,
     onOpenSource: (chunkId: String) -> Unit,
 ) {
     Column(
@@ -107,7 +111,7 @@ fun HubScreen(
             },
         )
         when {
-            state.hub != null -> HubContent(state.hub, onOpenSummary, onOpenCards, onOpenQuiz, onOpenTutor, onOpenSource)
+            state.hub != null -> HubContent(state.hub, onOpenSummary, onOpenCards, onOpenQuiz, onOpenTutor, onOpenPodcast, onOpenSource)
             state.error != null -> MessageView(
                 title = stringResource(R.string.hub_error_title),
                 body = stringResource(state.error.messageRes()),
@@ -126,6 +130,7 @@ private fun HubContent(
     onOpenCards: () -> Unit,
     onOpenQuiz: () -> Unit,
     onOpenTutor: () -> Unit,
+    onOpenPodcast: () -> Unit,
     onOpenSource: (chunkId: String) -> Unit,
 ) {
     val pack = hub.pack
@@ -169,6 +174,17 @@ private fun HubContent(
                     container = colors.primaryTint,
                     tint = colors.primaryStrong,
                     onClick = onOpenSummary,
+                    modifier = modifier,
+                )
+            },
+            { modifier ->
+                HubTile(
+                    title = stringResource(R.string.hub_podcast),
+                    subtitle = stringResource(R.string.hub_podcast_sub),
+                    icon = Icons.Outlined.Headphones,
+                    container = colors.lemon,
+                    tint = colors.onLemon,
+                    onClick = onOpenPodcast,
                     modifier = modifier,
                 )
             },
