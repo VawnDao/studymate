@@ -25,7 +25,7 @@ interface LocalFileSource {
     suspend fun displayName(uri: String): String?
 
     companion object {
-        const val MAX_UPLOAD_BYTES = 10L * 1024 * 1024
+        const val MAX_UPLOAD_BYTES = 100L * 1024 * 1024
         const val MAX_PDF_PAGES = 20
     }
 }
