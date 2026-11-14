@@ -1,0 +1,36 @@
+{
+  "document": { "id": "d_sample", "title": "Sinh học 11 – Quang hợp", "pages": 6, "source_type": "pdf" },
+  "summary": {
+    "tldr": "Cây dùng năng lượng ánh sáng để biến CO₂ và nước thành đường, qua 2 pha: pha sáng tạo ATP, NADPH và O₂; pha tối dùng chúng để tạo đường.",
+    "outline": [
+      { "title": "Khái niệm & phương trình", "points": ["Cây dùng ánh sáng để tạo chất hữu cơ từ CO₂ và nước", "$6CO_2 + 6H_2O \\rightarrow C_6H_{12}O_6 + 6O_2$"], "source_chunk_ids": ["c001"] },
+      { "title": "Pha sáng", "points": ["Diễn ra ở màng thylakoid", "Diệp lục hấp thụ ánh sáng", "Quang phân li nước → giải phóng O₂", "Tạo ATP và NADPH cho pha tối"], "source_chunk_ids": ["c002", "c003"] },
+      { "title": "Pha tối (chu trình Calvin)", "points": ["Diễn ra ở chất nền lục lạp", "Rubisco cố định CO₂", "Dùng ATP, NADPH để tạo đường"], "source_chunk_ids": ["c005"] }
+    ],
+    "concepts": [
+      { "term": "Diệp lục", "explain": "Sắc tố xanh của lá, giống \"tấm pin mặt trời\": hấp thụ ánh sáng để lấy năng lượng.", "source_chunk_ids": ["c002"] },
+      { "term": "Quang phân li nước", "explain": "Ánh sáng \"tách\" phân tử nước. Đây là nơi khí O₂ được sinh ra.", "source_chunk_ids": ["c003"] },
+      { "term": "ATP và NADPH", "explain": "Hai \"cục pin\" mang năng lượng từ pha sáng sang pha tối.", "source_chunk_ids": ["c004"] },
+      { "term": "Chu trình Calvin", "explain": "Chuỗi phản ứng dùng ATP, NADPH để biến CO₂ thành đường.", "source_chunk_ids": ["c005"] },
+      { "term": "Rubisco", "explain": "Enzyme gắn CO₂ vào chu trình Calvin, bước đầu tiên của pha tối.", "source_chunk_ids": ["c006"] }
+    ]
+  },
+  "flashcards": [
+    { "id": "f01", "front": "Pha sáng diễn ra ở đâu?", "back": "Ở màng thylakoid của lục lạp.", "source_chunk_ids": ["c002"] },
+    { "id": "f02", "front": "Khí O₂ trong quang hợp có nguồn gốc từ đâu?", "back": "Từ nước, qua quang phân li nước ở pha sáng.", "source_chunk_ids": ["c003"] },
+    { "id": "f03", "front": "Pha sáng chuyển những chất nào sang pha tối?", "back": "ATP và NADPH.", "source_chunk_ids": ["c004"] },
+    { "id": "f04", "front": "Chu trình Calvin diễn ra ở đâu?", "back": "Ở chất nền (stroma) của lục lạp.", "source_chunk_ids": ["c005"] },
+    { "id": "f05", "front": "Enzyme nào cố định CO₂ trong chu trình Calvin?", "back": "Rubisco.", "source_chunk_ids": ["c006"] },
+    { "id": "f06", "front": "Viết phương trình tổng quát của quang hợp.", "back": "$6CO_2 + 6H_2O \\rightarrow C_6H_{12}O_6 + 6O_2$ (ánh sáng, diệp lục).", "source_chunk_ids": ["c001"] }
+  ],
+  "quiz": [
+    { "id": "q01", "question": "Sản phẩm của pha sáng KHÔNG gồm chất nào?", "options": ["ATP", "NADPH", "O₂", "Glucose"], "answer_index": 3, "explanation": "Glucose được tạo ở pha tối (chu trình Calvin). Pha sáng chỉ tạo ATP, NADPH và giải phóng O₂.", "source_chunk_ids": ["c004"] },
+    { "id": "q02", "question": "Khí O₂ giải phóng trong quang hợp có nguồn gốc từ đâu?", "options": ["CO₂", "H₂O", "Glucose", "Diệp lục"], "answer_index": 1, "explanation": "O₂ sinh ra khi nước bị quang phân li ở pha sáng, không phải từ CO₂.", "source_chunk_ids": ["c003"] },
+    { "id": "q03", "question": "Chu trình Calvin diễn ra ở đâu?", "options": ["Màng thylakoid", "Chất nền lục lạp", "Ti thể", "Nhân tế bào"], "answer_index": 1, "explanation": "Pha tối (chu trình Calvin) diễn ra ở chất nền (stroma) của lục lạp.", "source_chunk_ids": ["c005"] },
+    { "id": "q04", "question": "Sắc tố hấp thụ năng lượng ánh sáng trong quang hợp là gì?", "options": ["Hemoglobin", "Melanin", "Diệp lục", "Keratin"], "answer_index": 2, "explanation": "Diệp lục hấp thụ năng lượng ánh sáng ở pha sáng.", "source_chunk_ids": ["c002"] }
+  ],
+  "chunks_index": {
+    "c001": { "page": 1 }, "c002": { "page": 2 }, "c003": { "page": 3 },
+    "c004": { "page": 3 }, "c005": { "page": 5 }, "c006": { "page": 5 }
+  }
+}

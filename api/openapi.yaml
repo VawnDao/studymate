@@ -1,0 +1,325 @@
+openapi: 3.0.3
+info:
+  title: StudyMate API
+  version: 1.0.0
+  description: |
+    Hợp đồng giữa app Android (Kotlin) và backend (Go). Đây là nguồn sự thật:
+    DTO trong `android/data/.../remote/dto/Dtos.kt` và struct Go phải khớp file này.
+
+    - Mọi request cần header `X-App-Token`.
+    - JSON dùng snake_case, UTF-8.
+    - Mọi lỗi trả về dạng `ErrorEnvelope`.
+    - Dữ liệu mẫu: `samples/pack_sample.json`, `samples/chunks_sample.json`.
+servers:
+  - url: http://localhost:8080
+    description: Backend chạy trên laptop (emulator gọi qua http://10.0.2.2:8080)
+
+security:
+  - AppToken: []
+
+paths:
+  /v1/documents:
+    post:
+      summary: Tải lên tài liệu (1 PDF hoặc 1–5 ảnh) và bắt đầu xử lý bất đồng bộ
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Một file PDF (≤ 10 MB, ≤ 20 trang). Dùng `file` HOẶC `images`, không dùng cả hai.
+                images:
+                  type: array
+                  maxItems: 5
+                  items: { type: string, format: binary }
+                  description: 1–5 ảnh JPEG/PNG theo thứ tự trang. App đã nén về cạnh dài 1600 px.
+                title:
+                  type: string
+                  maxLength: 200
+      responses:
+        '202':
+          description: Đã nhận, đang xử lý
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DocumentStatus' }
+        '200':
+          description: File trùng sha256 với tài liệu đã xử lý xong (cached = true)
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DocumentStatus' }
+        '401': { $ref: '#/components/responses/Error' }
+        '413': { $ref: '#/components/responses/Error' }
+        '415': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+        '429': { $ref: '#/components/responses/Error' }
+
+  /v1/documents/{id}:
+    parameters:
+      - $ref: '#/components/parameters/DocumentId'
+    get:
+      summary: Trạng thái và tiến độ xử lý (app hỏi mỗi 1 giây)
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/DocumentStatus' }
+        '404': { $ref: '#/components/responses/Error' }
+    delete:
+      summary: Xoá tài liệu, đoạn, vector, bộ ôn tập
+      responses:
+        '204': { description: Đã xoá }
+        '404': { $ref: '#/components/responses/Error' }
+
+  /v1/documents/{id}/pack:
+    parameters:
+      - $ref: '#/components/parameters/DocumentId'
+    get:
+      summary: Bộ ôn tập (tóm tắt, flashcard, quiz), mọi mục có source_chunk_ids
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/StudyPack' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+
+  /v1/documents/{id}/chunks/{chunkId}:
+    parameters:
+      - $ref: '#/components/parameters/DocumentId'
+      - name: chunkId
+        in: path
+        required: true
+        schema: { type: string, example: c004 }
+    get:
+      summary: Đoạn gốc cho màn "Xem nguồn"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Chunk' }
+        '404': { $ref: '#/components/responses/Error' }
+
+  /v1/documents/{id}/tutor:
+    parameters:
+      - $ref: '#/components/parameters/DocumentId'
+    post:
+      summary: Gia sư Socratic (RAG trên tài liệu)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TutorRequest' }
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/TutorReply' }
+        '404': { $ref: '#/components/responses/Error' }
+        '409': { $ref: '#/components/responses/Error' }
+        '422': { $ref: '#/components/responses/Error' }
+        '503': { $ref: '#/components/responses/Error' }
+
+  /healthz:
+    get:
+      security: []
+      summary: Tiến trình còn sống
+      responses:
+        '200': { description: OK }
+  /readyz:
+    get:
+      security: []
+      summary: Sẵn sàng phục vụ (DB mở được, có API key hoặc LLM_ENABLED=false)
+      responses:
+        '200': { description: OK }
+        '503': { description: Chưa sẵn sàng }
+
+components:
+  securitySchemes:
+    AppToken:
+      type: apiKey
+      in: header
+      name: X-App-Token
+
+  parameters:
+    DocumentId:
+      name: id
+      in: path
+      required: true
+      schema: { type: string, example: d_7f3a }
+
+  responses:
+    Error:
+      description: Lỗi theo định dạng chung
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/ErrorEnvelope' }
+
+  schemas:
+    ErrorEnvelope:
+      type: object
+      required: [error]
+      properties:
+        error: { $ref: '#/components/schemas/ApiError' }
+
+    ApiError:
+      type: object
+      required: [code]
+      properties:
+        code:
+          type: string
+          enum: [UNAUTHORIZED, RATE_LIMITED, FILE_TOO_LARGE, PDF_TOO_LONG, UNSUPPORTED_TYPE,
+                 TOO_MANY_IMAGES, NOT_READY, NOT_FOUND, LLM_UNAVAILABLE, INTERNAL]
+        message:
+          type: string
+          description: Câu tiếng Việt để log/debug; app hiển thị câu riêng theo `code`.
+
+    DocumentStatus:
+      type: object
+      required: [id, status]
+      properties:
+        id: { type: string }
+        title: { type: string }
+        pages: { type: integer, minimum: 0 }
+        source_type: { type: string, enum: [pdf, images] }
+        status:
+          type: string
+          enum: [uploaded, extracting, ocr, chunking, indexing, generating, validating, ready, failed]
+        step:
+          type: integer
+          minimum: 0
+          maximum: 4
+          description: 'extracting→1, ocr→2, chunking/indexing→3, generating/validating→4'
+        steps_total: { type: integer, example: 4 }
+        error:
+          allOf: [{ $ref: '#/components/schemas/ApiError' }]
+          nullable: true
+          description: Chỉ có khi status = failed
+        cached: { type: boolean, default: false }
+
+    StudyPack:
+      type: object
+      required: [document, summary, flashcards, quiz, chunks_index]
+      properties:
+        document:
+          type: object
+          required: [id, title]
+          properties:
+            id: { type: string }
+            title: { type: string }
+            pages: { type: integer }
+            source_type: { type: string, enum: [pdf, images] }
+        summary:
+          type: object
+          properties:
+            tldr: { type: string }
+            outline:
+              type: array
+              items:
+                type: object
+                required: [title, points, source_chunk_ids]
+                properties:
+                  title: { type: string }
+                  points: { type: array, items: { type: string } }
+                  source_chunk_ids: { $ref: '#/components/schemas/ChunkIds' }
+            concepts:
+              type: array
+              items:
+                type: object
+                required: [term, explain, source_chunk_ids]
+                properties:
+                  term: { type: string }
+                  explain: { type: string }
+                  source_chunk_ids: { $ref: '#/components/schemas/ChunkIds' }
+        flashcards:
+          type: array
+          items:
+            type: object
+            required: [id, front, back, source_chunk_ids]
+            properties:
+              id: { type: string, description: 'Ổn định trong tài liệu (f01, f02…) để app giữ lịch ôn' }
+              front: { type: string, maxLength: 200 }
+              back: { type: string, maxLength: 300 }
+              source_chunk_ids: { $ref: '#/components/schemas/ChunkIds' }
+        quiz:
+          type: array
+          items:
+            type: object
+            required: [id, question, options, answer_index, explanation, source_chunk_ids]
+            properties:
+              id: { type: string, description: 'q01, q02…' }
+              question: { type: string }
+              options:
+                type: array
+                minItems: 4
+                maxItems: 4
+                items: { type: string }
+              answer_index: { type: integer, minimum: 0, maximum: 3 }
+              explanation: { type: string, maxLength: 400 }
+              source_chunk_ids: { $ref: '#/components/schemas/ChunkIds' }
+        chunks_index:
+          type: object
+          description: 'chunk_id → { page }, chỉ gồm các đoạn được tham chiếu'
+          additionalProperties:
+            type: object
+            required: [page]
+            properties:
+              page: { type: integer, minimum: 1 }
+
+    ChunkIds:
+      type: array
+      minItems: 1
+      items: { type: string, example: c003 }
+
+    Chunk:
+      type: object
+      required: [id, page, text]
+      properties:
+        id: { type: string }
+        page: { type: integer }
+        text: { type: string, description: 'Có thể chứa công thức dạng $...$' }
+
+    TutorRequest:
+      type: object
+      required: [messages, hint_level]
+      properties:
+        messages:
+          type: array
+          maxItems: 12
+          description: Lịch sử gần nhất; phần tử cuối luôn là role = user
+          items:
+            type: object
+            required: [role, content]
+            properties:
+              role: { type: string, enum: [user, assistant] }
+              content: { type: string, maxLength: 1000 }
+        hint_level:
+          type: integer
+          enum: [1, 2, 3]
+          description: '1 = gợi hướng, 2 = gợi ý cụ thể, 3 = lời giải đầy đủ'
+
+    TutorReply:
+      type: object
+      required: [reply, mode, citations, in_document]
+      properties:
+        reply: { type: string, description: '≤ 120 từ, tiếng Việt, có thể chứa $...$' }
+        mode: { type: string, enum: [hint, check, solution, out_of_scope] }
+        next_question: { type: string, nullable: true }
+        citations:
+          type: array
+          description: chunk_id phải thuộc top-5 đoạn đã truy xuất; page lấy từ DB
+          items:
+            type: object
+            required: [chunk_id, page]
+            properties:
+              chunk_id: { type: string }
+              page: { type: integer }
+              quote: { type: string, nullable: true, description: Chuỗi con của đoạn gốc để app tô sáng }
+        in_document: { type: boolean }

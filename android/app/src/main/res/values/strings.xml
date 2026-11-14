@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">StudyMate</string>
+
+    <!-- Chung -->
+    <string name="action_back">Quay lại</string>
+    <string name="action_back_home">Về trang chủ</string>
+    <string name="action_cancel">Huỷ</string>
+    <string name="action_retry">Thử lại</string>
+    <string name="action_understood">Đã hiểu</string>
+    <string name="state_expanded">Đang mở</string>
+    <string name="state_collapsed">Đang đóng</string>
+
+    <!-- Điều hướng -->
+    <string name="nav_today">Hôm nay</string>
+    <string name="nav_add">Thêm</string>
+    <string name="nav_library">Thư viện</string>
+
+    <!-- Lỗi -->
+    <string name="error_network">Mất kết nối. Kiểm tra mạng rồi thử lại.</string>
+    <string name="error_generic">Có lỗi xảy ra, thử lại nhé.</string>
+    <string name="error_file_too_large">Tệp lớn hơn 10 MB. Bạn thử chọn tệp nhỏ hơn nhé.</string>
+    <string name="error_pdf_too_long">Tài liệu dài hơn 20 trang. Hãy tách thành nhiều phần.</string>
+    <string name="error_unsupported_type">Chỉ hỗ trợ PDF, JPG, PNG.</string>
+    <string name="error_too_many_images">Mỗi tài liệu tối đa 5 ảnh.</string>
+    <string name="error_not_ready">Tài liệu đang được xử lý.</string>
+    <string name="error_not_found">Không tìm thấy tài liệu.</string>
+    <string name="error_rate_limited">Thao tác hơi nhanh, thử lại sau vài giây.</string>
+    <string name="error_llm_unavailable">AI đang bận, thử lại sau ít phút.</string>
+    <string name="error_empty_input">Bạn chưa chọn nội dung nào.</string>
+
+    <!-- Hôm nay -->
+    <string name="today_greeting">Chào bạn,</string>
+    <string name="today_title">Hôm nay học gì?</string>
+    <string name="today_due_label">ĐẾN HẠN ÔN HÔM NAY</string>
+    <string name="today_review_now">Ôn ngay</string>
+    <string name="today_done_label">HÔM NAY</string>
+    <string name="today_done_title">Bạn đã ôn xong thẻ hôm nay</string>
+    <string name="today_done_body">Thêm tài liệu mới hoặc làm quiz để nhớ chắc hơn.</string>
+    <string name="today_start_label">BẮT ĐẦU</string>
+    <string name="today_start_title">Biến tài liệu của bạn thành bài ôn trong 1 phút</string>
+    <string name="today_start_body">Tóm tắt, flashcard, quiz và gia sư AI. Chỉ dựa trên tài liệu bạn tải lên.</string>
+    <string name="today_recent">Tài liệu gần đây</string>
+
+    <!-- Thêm tài liệu -->
+    <string name="add_document">Thêm tài liệu</string>
+    <string name="add_pdf">Tải file PDF</string>
+    <string name="add_pdf_sub">Đề cương, giáo trình · tối đa 20 trang</string>
+    <string name="add_pdf_sub_short">Đề cương, giáo trình</string>
+    <string name="add_camera">Chụp vở / sách</string>
+    <string name="add_camera_sub">Chữ viết tay, công thức toán</string>
+    <string name="add_camera_sub_short">Chữ tay, công thức</string>
+    <string name="add_gallery">Chọn ảnh có sẵn</string>
+    <string name="add_gallery_sub">Tối đa 5 ảnh mỗi tài liệu</string>
+    <string name="add_uploading">Đang tải lên…</string>
+    <string name="add_limits">PDF tối đa 20 trang, 10 MB · tối đa 5 ảnh mỗi tài liệu</string>
+
+    <!-- Thư viện -->
+    <string name="library_title">Thư viện</string>
+    <string name="library_hint">Giữ lâu một tài liệu để xoá.</string>
+    <string name="library_empty_title">Chưa có tài liệu</string>
+    <string name="library_empty_body">Tải PDF hoặc chụp vở để AI tạo bài ôn cho bạn.</string>
+    <string name="library_delete">Xoá</string>
+    <string name="library_delete_title">Xoá tài liệu?</string>
+    <string name="library_delete_body">%1$s cùng toàn bộ thẻ, lịch ôn và kết quả quiz sẽ bị xoá. Không thể hoàn tác.</string>
+    <string name="document_processing">Đang xử lý</string>
+    <string name="document_failed">Lỗi</string>
+    <string name="document_meta">%1$s · %2$s</string>
+    <string name="source_type_pdf">PDF</string>
+    <string name="source_type_images">Ảnh chụp</string>
+
+    <!-- Đang xử lý -->
+    <string name="processing_header">Đang xử lý</string>
+    <string name="processing_label">AI ĐANG ĐỌC TÀI LIỆU</string>
+    <string name="processing_untitled">Tài liệu mới</string>
+    <string name="processing_step_read">Đọc tài liệu</string>
+    <string name="processing_step_read_sub">Trích chữ từng trang</string>
+    <string name="processing_step_ocr">Nhận diện chữ &amp; công thức</string>
+    <string name="processing_step_ocr_sub">Chữ viết tay, công thức</string>
+    <string name="processing_step_index">Tìm ý chính</string>
+    <string name="processing_step_index_sub">Chia đoạn, lập chỉ mục tìm kiếm</string>
+    <string name="processing_step_generate">Soạn thẻ &amp; câu hỏi</string>
+    <string name="processing_step_generate_sub">Mỗi thẻ và câu hỏi đều ghi trang nguồn</string>
+    <string name="processing_running">Đang chạy</string>
+    <string name="processing_done">Xong</string>
+    <string name="processing_footnote">Nội dung chỉ lấy từ tài liệu của bạn.</string>
+    <string name="processing_failed_title">Không xử lý được tài liệu</string>
+    <string name="processing_error_title">Mất kết nối với máy chủ</string>
+
+    <!-- Hub -->
+    <string name="hub_ready">Sẵn sàng</string>
+    <string name="hub_meta">%1$s · %2$s · %3$s</string>
+    <string name="hub_tldr">TÓM TẮT 1 CÂU</string>
+    <string name="hub_summary">Tóm tắt</string>
+    <string name="hub_summary_sub">%1$d phần · %2$d khái niệm</string>
+    <string name="hub_cards">Flashcard</string>
+    <string name="hub_cards_sub">%1$s · %2$d đến hạn</string>
+    <string name="hub_quiz">Quiz</string>
+    <string name="hub_tutor">Gia sư AI</string>
+    <string name="hub_tutor_sub">Gợi mở, không cho đáp án ngay</string>
+    <string name="hub_trust">Mọi nội dung chỉ lấy từ tài liệu của bạn. Chạm Nguồn để xem đoạn gốc.</string>
+    <string name="hub_error_title">Chưa tải được bộ ôn tập</string>
+    <string name="pack_missing_title">Chưa có bộ ôn tập</string>
+    <string name="pack_missing_body">Quay lại trang tài liệu để tải bộ ôn tập về máy.</string>
+
+    <!-- Tóm tắt -->
+    <string name="summary_title">Tóm tắt</string>
+    <string name="summary_outline">Dàn ý</string>
+    <string name="summary_concepts">Khái niệm chính, giải thích dễ hiểu</string>
+    <string name="summary_to_cards">Ôn bằng flashcard</string>
+
+    <!-- Nguồn -->
+    <string name="source_chip">Nguồn</string>
+    <string name="source_chip_page">Nguồn · tr. %1$d</string>
+    <string name="source_title">Nguồn trong tài liệu</string>
+    <string name="source_page">Trang %1$d</string>
+    <string name="source_footnote">Đoạn được tô vàng là căn cứ AI dùng để tạo nội dung này.</string>
+    <string name="source_error_title">Không mở được đoạn nguồn</string>
+
+    <!-- Flashcard -->
+    <string name="cards_close">Đóng phiên ôn</string>
+    <string name="cards_question">CÂU HỎI</string>
+    <string name="cards_answer">ĐÁP ÁN</string>
+    <string name="cards_tap_to_flip">Chạm để lật thẻ</string>
+    <string name="cards_flip">Thẻ ôn tập, chạm để lật</string>
+    <string name="cards_show_answer">Xem đáp án</string>
+    <string name="cards_rate_prompt">Bạn nhớ thẻ này thế nào?</string>
+    <string name="cards_practice">ÔN THÊM · không còn thẻ đến hạn</string>
+    <string name="cards_empty_title">Chưa có thẻ nào</string>
+    <string name="cards_empty_body">Bạn đã ôn hết thẻ đến hạn. Quay lại sau nhé!</string>
+    <string name="cards_done_label">XONG PHIÊN ÔN</string>
+    <string name="cards_done_title">Nhớ %1$d/%2$d thẻ</string>
+    <string name="cards_done_body">Thẻ bạn quên sẽ quay lại sau 10 phút. Thẻ đã nhớ được lên lịch ôn giãn dần.</string>
+    <string name="cards_breakdown">Kết quả phiên ôn</string>
+    <string name="cards_to_quiz">Làm quiz kiểm tra</string>
+    <string name="cards_finish">Xong</string>
+    <string name="rating_again">Quên</string>
+    <string name="rating_hard">Khó</string>
+    <string name="rating_good">Nhớ</string>
+    <string name="rating_easy">Dễ</string>
+
+    <!-- Quiz -->
+    <string name="quiz_close">Thoát quiz</string>
+    <string name="quiz_question_number">CÂU %1$d</string>
+    <string name="quiz_correct">Chính xác!</string>
+    <string name="quiz_wrong">Chưa đúng</string>
+    <string name="quiz_mark_correct">ĐÚNG</string>
+    <string name="quiz_mark_chosen">BẠN CHỌN</string>
+    <string name="quiz_next">Câu tiếp theo</string>
+    <string name="quiz_see_result">Xem kết quả</string>
+    <string name="quiz_result_label">KẾT QUẢ</string>
+    <string name="quiz_score">%1$d/%2$d</string>
+    <string name="quiz_percent">%1$d%% đúng</string>
+    <string name="quiz_result_perfect">Tuyệt vời, bạn nắm chắc bài!</string>
+    <string name="quiz_result_good">Khá tốt! Ôn lại câu sai là chắc bài.</string>
+    <string name="quiz_result_low">Cần ôn thêm. Thử hỏi gia sư nhé.</string>
+    <string name="quiz_ask_tutor">Hỏi gia sư về câu sai</string>
+    <string name="quiz_retry">Làm lại</string>
+    <string name="quiz_empty_title">Chưa có câu hỏi</string>
+    <string name="quiz_empty_body">Tài liệu này chưa có câu quiz nào.</string>
+
+    <!-- Gia sư -->
+    <string name="tutor_title">Gia sư AI</string>
+    <string name="tutor_subtitle">Chỉ dựa trên: %1$s</string>
+    <string name="tutor_greeting">Chào bạn! Mình sẽ gợi ý để bạn tự tìm ra đáp án, và chỉ trả lời dựa trên tài liệu của bạn.</string>
+    <string name="tutor_ai_badge">AI</string>
+    <string name="tutor_searching">Đang tìm trong tài liệu…</string>
+    <string name="tutor_input_hint">Hỏi về tài liệu này…</string>
+    <string name="tutor_send">Gửi câu hỏi</string>
+    <string name="tutor_more_hint">Gợi ý thêm</string>
+    <string name="tutor_show_solution">Xem lời giải</string>
+    <string name="tutor_more_hint_prompt">Gợi ý thêm cho mình nhé</string>
+    <string name="tutor_solution_prompt">Cho mình xem lời giải</string>
+    <string name="tutor_mode_hint">GỢI Ý</string>
+    <string name="tutor_mode_check">NHẬN XÉT</string>
+    <string name="tutor_mode_solution">LỜI GIẢI</string>
+    <string name="tutor_mode_out_of_scope">NGOÀI TÀI LIỆU</string>
+
+    <plurals name="pages">
+        <item quantity="one">%d trang</item>
+        <item quantity="other">%d trang</item>
+    </plurals>
+    <plurals name="cards">
+        <item quantity="one">%d thẻ</item>
+        <item quantity="other">%d thẻ</item>
+    </plurals>
+    <plurals name="questions">
+        <item quantity="one">%d câu quiz</item>
+        <item quantity="other">%d câu quiz</item>
+    </plurals>
+    <plurals name="questions_with_explain">
+        <item quantity="one">%d câu · có giải thích</item>
+        <item quantity="other">%d câu · có giải thích</item>
+    </plurals>
+    <plurals name="due_cards_big">
+        <item quantity="one">%d thẻ</item>
+        <item quantity="other">%d thẻ</item>
+    </plurals>
+    <plurals name="due_cards_short">
+        <item quantity="one">%d đến hạn</item>
+        <item quantity="other">%d đến hạn</item>
+    </plurals>
+    <plurals name="interval_minutes">
+        <item quantity="one">%d phút</item>
+        <item quantity="other">%d phút</item>
+    </plurals>
+    <plurals name="interval_hours">
+        <item quantity="one">%d giờ</item>
+        <item quantity="other">%d giờ</item>
+    </plurals>
+    <plurals name="interval_days">
+        <item quantity="one">%d ngày</item>
+        <item quantity="other">%d ngày</item>
+    </plurals>
+</resources>

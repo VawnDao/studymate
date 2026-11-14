@@ -1,0 +1,8 @@
+[
+  { "id": "c001", "page": 1, "text": "Quang hợp là quá trình cây xanh dùng năng lượng ánh sáng để tổng hợp chất hữu cơ từ CO₂ và H₂O. Phương trình tổng quát: 6CO₂ + 6H₂O → C₆H₁₂O₆ + 6O₂ (cần ánh sáng và diệp lục)." },
+  { "id": "c002", "page": 2, "text": "Pha sáng diễn ra ở màng thylakoid của lục lạp. Diệp lục hấp thụ năng lượng ánh sáng và chuyển hoá thành năng lượng hoá học." },
+  { "id": "c003", "page": 3, "text": "Ở pha sáng, nước bị quang phân li, giải phóng O₂." },
+  { "id": "c004", "page": 3, "text": "Năng lượng ánh sáng được tích luỹ trong ATP và NADPH để cung cấp cho pha tối." },
+  { "id": "c005", "page": 5, "text": "Pha tối (chu trình Calvin) diễn ra ở chất nền (stroma) của lục lạp. ATP và NADPH được dùng để tổng hợp đường." },
+  { "id": "c006", "page": 5, "text": "Enzyme Rubisco cố định CO₂, mở đầu chu trình Calvin." }
+]
