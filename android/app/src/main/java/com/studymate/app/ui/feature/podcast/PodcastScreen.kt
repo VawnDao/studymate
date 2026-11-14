@@ -11,6 +11,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Headphones
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -19,7 +20,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -66,7 +70,29 @@ private fun PodcastScreen(state: PodcastUiState, onBack: () -> Unit, onCreate: (
                     Button(onClick = onCreate) { Text(stringResource(R.string.podcast_create)) }
                 }
             }
-            state.isStarting || state.isLoading -> LoadingView()
+            state.isStarting || (state.isLoading && state.podcast?.status == PodcastStatus.GENERATING) -> {
+                var elapsedSeconds by remember { mutableIntStateOf(0) }
+                LaunchedEffect(Unit) {
+                    while (true) {
+                        kotlinx.coroutines.delay(1_000)
+                        elapsedSeconds++
+                    }
+                }
+                Column(
+                    modifier = Modifier.fillMaxSize().padding(24.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp, Alignment.CenterVertically),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                ) {
+                    CircularProgressIndicator(color = StudyTheme.colors.primary)
+                    Text(stringResource(R.string.podcast_generating_title), style = MaterialTheme.typography.titleMedium)
+                    Text(
+                        stringResource(R.string.podcast_generating_eta, elapsedSeconds),
+                        style = MaterialTheme.typography.bodySmall,
+                        color = StudyTheme.colors.inkMuted,
+                    )
+                }
+            }
+            state.isLoading -> LoadingView()
             state.podcast?.status == PodcastStatus.READY -> PodcastReady(state)
             else -> MessageView(
                 title = stringResource(R.string.podcast_error_title),

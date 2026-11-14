@@ -86,6 +86,11 @@
     <string name="processing_running">Đang chạy</string>
     <string name="processing_done">Xong</string>
     <string name="processing_footnote">Nội dung chỉ lấy từ tài liệu của bạn.</string>
+    <string name="processing_eta_step0">Ước tính còn ~20–40 giây · Đã chạy %1$ds</string>
+    <string name="processing_eta_step1">Ước tính còn ~20–45 giây · Đã chạy %1$ds</string>
+    <string name="processing_eta_step2">Ước tính còn ~15–25 giây · Đã chạy %1$ds</string>
+    <string name="processing_eta_step3">Ước tính còn ~10–15 giây · Đã chạy %1$ds</string>
+    <string name="processing_eta_done">Hoàn tất (%1$ds)</string>
     <string name="processing_failed_title">Không xử lý được tài liệu</string>
     <string name="processing_error_title">Mất kết nối với máy chủ</string>
 
@@ -108,6 +113,8 @@
     <string name="podcast_intro">Tạo một audio tóm tắt để nghe lại tài liệu khi di chuyển hoặc nghỉ giải lao.</string>
     <string name="podcast_ai_badge">Audio do AI tạo</string>
     <string name="podcast_create">Tạo podcast</string>
+    <string name="podcast_generating_title">Đang tạo podcast…</string>
+    <string name="podcast_generating_eta">Ước tính ~30–60 giây · Đã chạy %1$ds</string>
     <string name="podcast_error_title">Chưa tạo được podcast</string>
     <string name="podcast_failed">Podcast chưa sẵn sàng. Bạn có thể thử lại.</string>
     <string name="podcast_no_audio">Backend chưa trả đường dẫn audio. Bạn vẫn có thể đọc script.</string>

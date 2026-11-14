@@ -32,7 +32,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -95,6 +97,28 @@ fun ProcessingScreen(state: ProcessingUiState, onBack: () -> Unit, onRetry: () -
             Text(state.title ?: stringResource(R.string.processing_untitled), style = MaterialTheme.typography.headlineSmall, maxLines = 2)
         }
         AnimatedProgressBar(progress = state.progress, color = StudyTheme.colors.primary, height = 10)
+        if (!state.hasProblem) {
+            var elapsedSeconds by remember { mutableIntStateOf(0) }
+            LaunchedEffect(state.currentStep >= PROCESSING_STEPS) {
+                if (state.currentStep >= PROCESSING_STEPS) return@LaunchedEffect
+                while (true) {
+                    kotlinx.coroutines.delay(1_000)
+                    elapsedSeconds++
+                }
+            }
+            val etaRes = when (state.currentStep) {
+                0 -> R.string.processing_eta_step0
+                1 -> R.string.processing_eta_step1
+                2 -> R.string.processing_eta_step2
+                3 -> R.string.processing_eta_step3
+                else -> R.string.processing_eta_done
+            }
+            Text(
+                text = stringResource(etaRes, elapsedSeconds),
+                style = MaterialTheme.typography.bodySmall,
+                color = StudyTheme.colors.inkMuted,
+            )
+        }
 
         AnimatedContent(
             targetState = state.hasProblem,
