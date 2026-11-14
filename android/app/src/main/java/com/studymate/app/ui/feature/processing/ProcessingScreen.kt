@@ -106,15 +106,17 @@ fun ProcessingScreen(state: ProcessingUiState, onBack: () -> Unit, onRetry: () -
                     elapsedSeconds++
                 }
             }
-            val etaRes = when (state.currentStep) {
-                0 -> R.string.processing_eta_step0
-                1 -> R.string.processing_eta_step1
-                2 -> R.string.processing_eta_step2
-                3 -> R.string.processing_eta_step3
-                else -> R.string.processing_eta_done
+            val etaText = if (state.currentStep >= PROCESSING_STEPS) {
+                stringResource(R.string.processing_eta_done, formatElapsed(elapsedSeconds))
+            } else {
+                stringResource(
+                    R.string.processing_eta_running,
+                    estimateRemainingText(state.currentStep, elapsedSeconds),
+                    formatElapsed(elapsedSeconds),
+                )
             }
             Text(
-                text = stringResource(etaRes, elapsedSeconds),
+                text = etaText,
                 style = MaterialTheme.typography.bodySmall,
                 color = StudyTheme.colors.inkMuted,
             )
@@ -241,4 +243,21 @@ private fun StepRow(index: Int, label: String, sub: String, state: StepState, mo
         }
         Text(status, style = MaterialTheme.typography.labelMedium, color = if (state == StepState.DONE) colors.success else colors.primary)
     }
+}
+
+private fun estimateRemainingText(step: Int, elapsedSeconds: Int): String = when (step) {
+    0 -> when {
+        elapsedSeconds >= 90 -> "~2–4 phút"
+        elapsedSeconds >= 25 -> "~1–3 phút"
+        else -> "~20–60 giây"
+    }
+    1 -> if (elapsedSeconds >= 45) "~1–3 phút" else "~30–90 giây"
+    2 -> if (elapsedSeconds >= 45) "~30–90 giây" else "~15–35 giây"
+    else -> "~10–25 giây"
+}
+
+private fun formatElapsed(seconds: Int): String = if (seconds < 60) {
+    "${seconds}s"
+} else {
+    "${seconds / 60}m ${seconds % 60}s"
 }

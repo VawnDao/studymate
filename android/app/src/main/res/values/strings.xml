@@ -86,11 +86,8 @@
     <string name="processing_running">Đang chạy</string>
     <string name="processing_done">Xong</string>
     <string name="processing_footnote">Nội dung chỉ lấy từ tài liệu của bạn.</string>
-    <string name="processing_eta_step0">Ước tính còn ~20–40 giây · Đã chạy %1$ds</string>
-    <string name="processing_eta_step1">Ước tính còn ~20–45 giây · Đã chạy %1$ds</string>
-    <string name="processing_eta_step2">Ước tính còn ~15–25 giây · Đã chạy %1$ds</string>
-    <string name="processing_eta_step3">Ước tính còn ~10–15 giây · Đã chạy %1$ds</string>
-    <string name="processing_eta_done">Hoàn tất (%1$ds)</string>
+    <string name="processing_eta_running">Ước tính còn %1$s · Đã chạy %2$s</string>
+    <string name="processing_eta_done">Hoàn tất (%1$s)</string>
     <string name="processing_failed_title">Không xử lý được tài liệu</string>
     <string name="processing_error_title">Mất kết nối với máy chủ</string>
 
