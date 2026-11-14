@@ -5,6 +5,14 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.itemsIndexed as gridItemsIndexed
+import com.studymate.app.ui.adaptive.AdaptiveWidth
+import com.studymate.app.ui.adaptive.ContentWidth
+import com.studymate.app.ui.adaptive.centeredContent
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
@@ -61,6 +69,7 @@ fun LibraryScreen(
 ) {
     when {
         state.isLoading -> LoadingView()
+        !AdaptiveWidth.current.isCompact -> LibraryGrid(state, contentPadding, onOpenDocument, onAdd, onEvent)
         else -> LazyColumn(
             modifier = Modifier.fillMaxSize(),
             contentPadding = contentPadding,
@@ -116,5 +125,56 @@ fun LibraryScreen(
                 }
             },
         )
+    }
+}
+
+/** Tablet: lưới thẻ tài liệu, số cột tự co giãn theo bề rộng (mỗi cột tối thiểu 320dp). */
+@Composable
+private fun LibraryGrid(
+    state: LibraryUiState,
+    contentPadding: PaddingValues,
+    onOpenDocument: (DocumentWithDue) -> Unit,
+    onAdd: () -> Unit,
+    onEvent: (LibraryEvent) -> Unit,
+) {
+    LazyVerticalGrid(
+        columns = GridCells.Adaptive(minSize = 320.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .centeredContent(ContentWidth.Wide),
+        contentPadding = contentPadding,
+        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        item(key = "title", span = { GridItemSpan(maxLineSpan) }) {
+            Column(Modifier.staggerIn(0)) {
+                Text(stringResource(R.string.library_title), style = MaterialTheme.typography.headlineLarge)
+                if (state.items.isNotEmpty()) {
+                    Text(stringResource(R.string.library_hint), style = MaterialTheme.typography.bodySmall, color = StudyTheme.colors.inkMuted)
+                }
+            }
+        }
+        if (state.items.isEmpty()) {
+            item(key = "empty", span = { GridItemSpan(maxLineSpan) }) {
+                MessageView(
+                    title = stringResource(R.string.library_empty_title),
+                    body = stringResource(R.string.library_empty_body),
+                    actionLabel = stringResource(R.string.add_document),
+                    onAction = onAdd,
+                    modifier = Modifier.centeredContent(ContentWidth.Focus),
+                )
+            }
+        } else {
+            gridItemsIndexed(state.items, key = { _, item -> item.document.id }) { index, item ->
+                DocumentRow(
+                    item = item,
+                    onClick = { onOpenDocument(item) },
+                    onLongClick = { onEvent(LibraryEvent.RequestDelete(item.document)) },
+                    modifier = Modifier
+                        .animateItem()
+                        .staggerIn(index + 1),
+                )
+            }
+        }
     }
 }

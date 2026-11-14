@@ -1,20 +1,35 @@
 package com.studymate.app.ui.feature.source
 
+import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.outlined.MenuBook
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
@@ -23,6 +38,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -39,6 +55,7 @@ import com.studymate.app.ui.components.LoadingView
 import com.studymate.app.ui.components.MessageView
 import com.studymate.app.ui.components.StudyButton
 import com.studymate.app.ui.components.Tag
+import com.studymate.app.ui.theme.Motion
 import com.studymate.app.ui.theme.StudyTheme
 import com.studymate.app.ui.text.LatexToUnicode
 import kotlinx.coroutines.delay
@@ -51,20 +68,19 @@ data class SourceRequest(
     val quote: String? = null,
 )
 
+/** Điện thoại / tablet dọc: đoạn nguồn trong bottom sheet. */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SourceSheet(
     request: SourceRequest,
     onDismiss: () -> Unit,
-    viewModel: SourceViewModel = hiltViewModel(key = "source/${request.documentId}/${request.chunkId}"),
+    viewModel: SourceViewModel = hiltViewModel(key = sourceKey(request)),
 ) {
     LaunchedEffect(request) { viewModel.load(request.documentId, request.chunkId) }
     val state by viewModel.uiState.collectAsStateWithLifecycle()
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-
     ModalBottomSheet(
         onDismissRequest = onDismiss,
-        sheetState = sheetState,
+        sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true),
         containerColor = StudyTheme.colors.surface,
     ) {
         Column(
@@ -75,34 +91,128 @@ fun SourceSheet(
                 .navigationBarsPadding(),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
-            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceBetween) {
-                Text(stringResource(R.string.source_title), style = MaterialTheme.typography.titleLarge)
-                state.chunk?.let {
-                    Tag(
-                        text = stringResource(R.string.source_page, it.page),
-                        container = StudyTheme.colors.primaryTint,
-                        content = StudyTheme.colors.primaryStrong,
-                    )
-                }
-            }
-            when {
-                state.isLoading -> Box(Modifier.height(160.dp)) { LoadingView() }
-                state.error != null -> MessageView(
-                    title = stringResource(R.string.source_error_title),
-                    body = stringResource(state.error!!.messageRes()),
-                    actionLabel = stringResource(R.string.action_retry),
-                    onAction = { viewModel.load(request.documentId, request.chunkId, force = true) },
-                )
-                state.chunk != null -> {
-                    HighlightedSource(text = state.chunk!!.text, quote = request.quote)
-                    Text(
-                        stringResource(R.string.source_footnote),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = StudyTheme.colors.inkMuted,
-                    )
-                }
-            }
+            SourceHeader(state, onClose = null)
+            SourceBody(state, request.quote, onRetry = { viewModel.load(request.documentId, request.chunkId, force = true) })
             StudyButton(text = stringResource(R.string.action_understood), onClick = onDismiss, modifier = Modifier.fillMaxWidth())
+        }
+    }
+}
+
+/**
+ * Tablet ngang: panel nguồn cố định bên cạnh nội dung học, để vừa trả lời vừa đối chiếu tài liệu.
+ * [request] null → hiện hướng dẫn "chạm Nguồn để xem ở đây".
+ */
+@Composable
+fun SourcePanel(
+    request: SourceRequest?,
+    onClose: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        modifier = modifier.fillMaxSize(),
+        shape = RoundedCornerShape(28.dp),
+        color = StudyTheme.colors.surface,
+    ) {
+        AnimatedContent(
+            targetState = request,
+            transitionSpec = {
+                (fadeIn(tween(Motion.MEDIUM)) + slideInHorizontally(tween(Motion.MEDIUM, easing = Motion.Emphasized)) { it / 10 }) togetherWith
+                    fadeOut(tween(Motion.SHORT))
+            },
+            contentKey = { it?.let(::sourceKey) },
+            label = "sourcePanel",
+        ) { current ->
+            if (current == null) {
+                SourcePanelPlaceholder()
+            } else {
+                val viewModel: SourceViewModel = hiltViewModel(key = sourceKey(current))
+                LaunchedEffect(current) { viewModel.load(current.documentId, current.chunkId) }
+                val state by viewModel.uiState.collectAsStateWithLifecycle()
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .verticalScroll(rememberScrollState())
+                        .padding(20.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    SourceHeader(state, onClose = onClose)
+                    SourceBody(state, current.quote, onRetry = { viewModel.load(current.documentId, current.chunkId, force = true) })
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun SourcePanelPlaceholder() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(28.dp),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Box(
+            Modifier
+                .size(56.dp)
+                .clip(RoundedCornerShape(18.dp))
+                .background(StudyTheme.colors.primaryTint),
+            contentAlignment = Alignment.Center,
+        ) {
+            @Suppress("DEPRECATION")
+            Icon(Icons.Outlined.MenuBook, contentDescription = null, tint = StudyTheme.colors.primaryStrong)
+        }
+        Text(
+            stringResource(R.string.source_panel_title),
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(top = 14.dp),
+        )
+        Text(
+            stringResource(R.string.source_panel_hint),
+            style = MaterialTheme.typography.bodyMedium,
+            color = StudyTheme.colors.inkMuted,
+            modifier = Modifier.padding(top = 4.dp),
+            textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+        )
+    }
+}
+
+@Composable
+private fun SourceHeader(state: SourceUiState, onClose: (() -> Unit)?) {
+    Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+        Text(stringResource(R.string.source_title), style = MaterialTheme.typography.titleLarge, modifier = Modifier.weight(1f))
+        state.chunk?.let {
+            Tag(
+                text = stringResource(R.string.source_page, it.page),
+                container = StudyTheme.colors.primaryTint,
+                content = StudyTheme.colors.primaryStrong,
+            )
+        }
+        if (onClose != null) {
+            IconButton(onClick = onClose) {
+                Icon(Icons.Filled.Close, contentDescription = stringResource(R.string.source_close))
+            }
+        }
+    }
+}
+
+@Composable
+private fun SourceBody(state: SourceUiState, quote: String?, onRetry: () -> Unit) {
+    when {
+        state.isLoading -> Box(Modifier.height(160.dp)) { LoadingView() }
+        state.error != null -> MessageView(
+            title = stringResource(R.string.source_error_title),
+            body = stringResource(state.error.messageRes()),
+            actionLabel = stringResource(R.string.action_retry),
+            onAction = onRetry,
+        )
+        state.chunk != null -> Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            HighlightedSource(text = state.chunk.text, quote = quote)
+            Text(
+                stringResource(R.string.source_footnote),
+                style = MaterialTheme.typography.bodySmall,
+                color = StudyTheme.colors.inkMuted,
+            )
         }
     }
 }
@@ -124,10 +234,10 @@ private fun HighlightedSource(text: String, quote: String?) {
     val plain = LatexToUnicode.convert(text)
     val start = quote?.let { plain.indexOf(it, ignoreCase = true) } ?: -1
     val annotated = buildAnnotatedString {
-        if (start >= 0) {
+        if (quote != null && start >= 0) {
             append(plain.substring(0, start))
-            withStyle(SpanStyle(background = highlight)) { append(plain.substring(start, start + quote!!.length)) }
-            append(plain.substring(start + quote!!.length))
+            withStyle(SpanStyle(background = highlight)) { append(plain.substring(start, start + quote.length)) }
+            append(plain.substring(start + quote.length))
         } else {
             withStyle(SpanStyle(background = highlight.copy(alpha = highlight.alpha * 0.55f))) { append(plain) }
         }
@@ -143,3 +253,5 @@ private fun HighlightedSource(text: String, quote: String?) {
             .padding(16.dp),
     )
 }
+
+private fun sourceKey(request: SourceRequest) = "source/${request.documentId}/${request.chunkId}"

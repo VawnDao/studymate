@@ -38,6 +38,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.studymate.app.R
+import com.studymate.app.ui.adaptive.AdaptiveWidth
+import com.studymate.app.ui.adaptive.ContentWidth
+import com.studymate.app.ui.adaptive.centeredContent
 import com.studymate.app.ui.common.messageRes
 import com.studymate.app.ui.components.BackHeader
 import com.studymate.app.ui.components.LoadingView
@@ -90,6 +93,7 @@ fun HubScreen(
     Column(
         Modifier
             .fillMaxSize()
+            .centeredContent(ContentWidth.Wide)
             .systemBarsPadding(),
     ) {
         BackHeader(
@@ -156,61 +160,68 @@ private fun HubContent(
                 }
             }
         }
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            HubTile(
-                title = stringResource(R.string.hub_summary),
-                subtitle = stringResource(
-                    R.string.hub_summary_sub,
-                    pack.summary.outline.size,
-                    pack.summary.concepts.size,
-                ),
-                icon = Icons.Outlined.Lightbulb,
-                container = colors.primaryTint,
-                tint = colors.primaryStrong,
-                onClick = onOpenSummary,
-                modifier = Modifier
-                    .weight(1f)
-                    .staggerIn(2),
-            )
-            HubTile(
-                title = stringResource(R.string.hub_cards),
-                subtitle = stringResource(
-                    R.string.hub_cards_sub,
-                    pluralStringResource(R.plurals.cards, pack.flashcards.size, pack.flashcards.size),
-                    hub.dueCount,
-                ),
-                icon = Icons.Outlined.Style,
-                container = colors.mint,
-                tint = colors.success,
-                onClick = onOpenCards,
-                modifier = Modifier
-                    .weight(1f)
-                    .staggerIn(3),
-            )
-        }
-        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-            HubTile(
-                title = stringResource(R.string.hub_quiz),
-                subtitle = pluralStringResource(R.plurals.questions_with_explain, pack.quiz.size, pack.quiz.size),
-                icon = Icons.Outlined.Quiz,
-                container = colors.peach,
-                tint = colors.orangeText,
-                onClick = onOpenQuiz,
-                modifier = Modifier
-                    .weight(1f)
-                    .staggerIn(4),
-            )
-            HubTile(
-                title = stringResource(R.string.hub_tutor),
-                subtitle = stringResource(R.string.hub_tutor_sub),
-                icon = Icons.Outlined.Forum,
-                container = colors.sky,
-                tint = colors.blueText,
-                onClick = onOpenTutor,
-                modifier = Modifier
-                    .weight(1f)
-                    .staggerIn(5),
-            )
+        val tiles: List<@Composable (Modifier) -> Unit> = listOf(
+            { modifier ->
+                HubTile(
+                    title = stringResource(R.string.hub_summary),
+                    subtitle = stringResource(R.string.hub_summary_sub, pack.summary.outline.size, pack.summary.concepts.size),
+                    icon = Icons.Outlined.Lightbulb,
+                    container = colors.primaryTint,
+                    tint = colors.primaryStrong,
+                    onClick = onOpenSummary,
+                    modifier = modifier,
+                )
+            },
+            { modifier ->
+                HubTile(
+                    title = stringResource(R.string.hub_cards),
+                    subtitle = stringResource(
+                        R.string.hub_cards_sub,
+                        pluralStringResource(R.plurals.cards, pack.flashcards.size, pack.flashcards.size),
+                        hub.dueCount,
+                    ),
+                    icon = Icons.Outlined.Style,
+                    container = colors.mint,
+                    tint = colors.success,
+                    onClick = onOpenCards,
+                    modifier = modifier,
+                )
+            },
+            { modifier ->
+                HubTile(
+                    title = stringResource(R.string.hub_quiz),
+                    subtitle = pluralStringResource(R.plurals.questions_with_explain, pack.quiz.size, pack.quiz.size),
+                    icon = Icons.Outlined.Quiz,
+                    container = colors.peach,
+                    tint = colors.orangeText,
+                    onClick = onOpenQuiz,
+                    modifier = modifier,
+                )
+            },
+            { modifier ->
+                HubTile(
+                    title = stringResource(R.string.hub_tutor),
+                    subtitle = stringResource(R.string.hub_tutor_sub),
+                    icon = Icons.Outlined.Forum,
+                    container = colors.sky,
+                    tint = colors.blueText,
+                    onClick = onOpenTutor,
+                    modifier = modifier,
+                )
+            },
+        )
+        // Tablet ngang: 4 ô một hàng; điện thoại và tablet dọc: lưới 2 × 2.
+        val perRow = if (AdaptiveWidth.current.isExpanded) 4 else 2
+        tiles.chunked(perRow).forEachIndexed { rowIndex, row ->
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                row.forEachIndexed { index, tile ->
+                    tile(
+                        Modifier
+                            .weight(1f)
+                            .staggerIn(2 + rowIndex * perRow + index),
+                    )
+                }
+            }
         }
         Row(
             modifier = Modifier

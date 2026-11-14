@@ -58,6 +58,18 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.studymate.app.R
+import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.isShiftPressed
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onPreviewKeyEvent
+import androidx.compose.ui.input.key.type
+import com.studymate.app.ui.adaptive.AdaptiveWidth
+import com.studymate.app.ui.adaptive.ContentWidth
+import com.studymate.app.ui.adaptive.centeredContent
+import com.studymate.app.ui.components.ShortcutHint
+import com.studymate.app.ui.feature.source.SourcePanel
 import com.studymate.app.ui.common.messageRes
 import com.studymate.app.ui.components.BackHeader
 import com.studymate.app.ui.components.MathText
@@ -79,13 +91,30 @@ fun TutorRoute(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     var source by remember { mutableStateOf<SourceRequest?>(null) }
-    TutorScreen(
-        state = state,
-        onBack = onBack,
-        onEvent = viewModel::onEvent,
-        onOpenSource = { source = SourceRequest(viewModel.documentId, it.chunkId, it.quote) },
-    )
-    source?.let { SourceSheet(request = it, onDismiss = { source = null }) }
+    val openSource: (Citation) -> Unit = { source = SourceRequest(viewModel.documentId, it.chunkId, it.quote) }
+
+    if (AdaptiveWidth.current.isExpanded) {
+        // Tablet ngang: chat bên trái, đoạn nguồn bên phải — vừa hỏi vừa đối chiếu tài liệu.
+        Row(
+            modifier = Modifier
+                .fillMaxSize()
+                .centeredContent(ContentWidth.Wide),
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            TutorScreen(state, onBack, viewModel::onEvent, openSource, Modifier.weight(1f))
+            SourcePanel(
+                request = source,
+                onClose = { source = null },
+                modifier = Modifier
+                    .weight(0.75f)
+                    .systemBarsPadding()
+                    .padding(top = 12.dp, bottom = 16.dp, end = 20.dp),
+            )
+        }
+    } else {
+        TutorScreen(state, onBack, viewModel::onEvent, openSource, Modifier.centeredContent(ContentWidth.Reading))
+        source?.let { SourceSheet(request = it, onDismiss = { source = null }) }
+    }
 }
 
 @Composable
@@ -94,6 +123,7 @@ fun TutorScreen(
     onBack: () -> Unit,
     onEvent: (TutorEvent) -> Unit,
     onOpenSource: (Citation) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
     val listState = rememberLazyListState()
     // Khoá theo cả số tin lẫn trạng thái gửi: câu trả lời thay chỗ dấu "đang gõ" nên tổng số
@@ -102,7 +132,7 @@ fun TutorScreen(
     LaunchedEffect(state.items.size, state.isSending) { listState.animateScrollToItem(itemCount - 1) }
 
     Column(
-        Modifier
+        modifier
             .fillMaxSize()
             .statusBarsPadding()
             .imePadding(),
@@ -309,7 +339,14 @@ private fun Composer(state: TutorUiState, onEvent: (TutorEvent) -> Unit) {
                 ),
                 modifier = Modifier
                     .weight(1f)
-                    .heightIn(min = 52.dp),
+                    .heightIn(min = 52.dp)
+                    // Bàn phím rời: Enter gửi, Shift + Enter xuống dòng.
+                    .onPreviewKeyEvent { event ->
+                        val isEnter = event.key == Key.Enter || event.key == Key.NumPadEnter
+                        if (event.type != KeyEventType.KeyDown || !isEnter || event.isShiftPressed) return@onPreviewKeyEvent false
+                        if (state.canSend) onEvent(TutorEvent.Send)
+                        true
+                    },
             )
             FilledIconButton(
                 onClick = { onEvent(TutorEvent.Send) },
@@ -321,6 +358,7 @@ private fun Composer(state: TutorUiState, onEvent: (TutorEvent) -> Unit) {
                 Icon(Icons.AutoMirrored.Filled.Send, contentDescription = stringResource(R.string.tutor_send))
             }
         }
+        ShortcutHint(stringResource(R.string.shortcut_tutor), Modifier.fillMaxWidth())
     }
 }
 

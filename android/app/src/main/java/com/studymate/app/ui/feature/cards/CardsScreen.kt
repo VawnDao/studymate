@@ -36,6 +36,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
@@ -43,9 +44,13 @@ import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.studymate.app.R
+import com.studymate.app.ui.adaptive.AdaptiveWidth
+import com.studymate.app.ui.adaptive.ContentWidth
+import com.studymate.app.ui.adaptive.centeredContent
 import com.studymate.app.ui.common.formatInterval
 import com.studymate.app.ui.components.AnimatedProgressBar
 import com.studymate.app.ui.components.CircleIconButton
@@ -56,6 +61,10 @@ import com.studymate.app.ui.components.SourceChip
 import com.studymate.app.ui.components.StudyButton
 import com.studymate.app.ui.components.StudyButtonStyle
 import com.studymate.app.ui.components.Tag
+import com.studymate.app.ui.components.ShortcutHint
+import com.studymate.app.ui.components.choiceIndex
+import com.studymate.app.ui.components.isConfirm
+import com.studymate.app.ui.components.keyboardShortcuts
 import com.studymate.app.ui.components.pressScale
 import com.studymate.app.ui.feature.source.SourceRequest
 import com.studymate.app.ui.feature.source.SourceSheet
@@ -95,6 +104,8 @@ fun CardsScreen(
     Column(
         Modifier
             .fillMaxSize()
+            .centeredContent(ContentWidth.Focus)
+            .keyboardShortcuts { key -> handleCardsKey(state, key, onEvent) }
             .systemBarsPadding()
             .padding(horizontal = 20.dp, vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(18.dp),
@@ -172,8 +183,10 @@ private fun ColumnScope.ReviewContent(
                         )
                     }
                 }
+                ShortcutHint(stringResource(R.string.shortcut_cards_back), Modifier.fillMaxWidth())
             }
         } else {
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
             StudyButton(
                 text = stringResource(R.string.cards_show_answer),
                 onClick = { onEvent(CardsEvent.Flip) },
@@ -181,6 +194,8 @@ private fun ColumnScope.ReviewContent(
                     .fillMaxWidth()
                     .height(64.dp),
             )
+            ShortcutHint(stringResource(R.string.shortcut_cards_front), Modifier.fillMaxWidth())
+            }
         }
     }
 }
@@ -204,6 +219,10 @@ private fun FlipCard(
     val interaction = remember { MutableInteractionSource() }
     val flipLabel = stringResource(R.string.cards_flip)
     val showBack = rotation > 90f
+    // Tablet: thẻ lớn hơn nên chữ cũng lớn hơn để dễ đọc từ xa.
+    val large = !AdaptiveWidth.current.isCompact
+    val frontStyle = if (large) MaterialTheme.typography.displayMedium.copy(fontSize = 36.sp, lineHeight = 44.sp) else MaterialTheme.typography.headlineMedium
+    val backStyle = if (large) MaterialTheme.typography.headlineLarge.copy(fontSize = 32.sp, lineHeight = 40.sp) else MaterialTheme.typography.headlineSmall
     Surface(
         onClick = onFlip,
         interactionSource = interaction,
@@ -228,11 +247,11 @@ private fun FlipCard(
         ) {
             if (showBack) {
                 Text(stringResource(R.string.cards_answer), style = MaterialTheme.typography.labelSmall, color = Color(0xFFB8F5D0))
-                MathText(card.back, style = MaterialTheme.typography.headlineSmall)
+                MathText(card.back, style = backStyle)
                 SourceChip(page = sourcePage, onClick = onOpenSource, container = Color.White.copy(alpha = 0.16f), content = Color.White)
             } else {
                 Text(stringResource(R.string.cards_question), style = MaterialTheme.typography.labelSmall, color = colors.success)
-                MathText(card.front, style = MaterialTheme.typography.headlineMedium)
+                MathText(card.front, style = frontStyle)
                 Text(stringResource(R.string.cards_tap_to_flip), style = MaterialTheme.typography.bodySmall, color = colors.inkMuted)
             }
         }
@@ -315,4 +334,17 @@ private fun ReviewRating.labelRes(): Int = when (this) {
     ReviewRating.HARD -> R.string.rating_hard
     ReviewRating.GOOD -> R.string.rating_good
     ReviewRating.EASY -> R.string.rating_easy
+}
+
+/** Space/Enter lật thẻ; sau khi lật: 1 Quên · 2 Khó · 3 Nhớ · 4 Dễ. */
+private fun handleCardsKey(state: CardsUiState, key: Key, onEvent: (CardsEvent) -> Unit): Boolean {
+    if (state.isFinished || state.current == null || state.isRating) return false
+    if (!state.isFlipped) {
+        if (!key.isConfirm) return false
+        onEvent(CardsEvent.Flip)
+        return true
+    }
+    val rating = key.choiceIndex()?.let { ReviewRating.entries.getOrNull(it) } ?: return false
+    onEvent(CardsEvent.Rate(rating))
+    return true
 }

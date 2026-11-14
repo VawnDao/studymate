@@ -44,6 +44,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.studymate.app.R
+import com.studymate.app.ui.adaptive.AdaptiveWidth
+import com.studymate.app.ui.adaptive.ContentWidth
+import com.studymate.app.ui.adaptive.centeredContent
 import com.studymate.app.ui.components.BackHeader
 import com.studymate.app.ui.components.LoadingView
 import com.studymate.app.ui.components.MathText
@@ -56,6 +59,7 @@ import com.studymate.app.ui.feature.source.SourceRequest
 import com.studymate.app.ui.feature.source.SourceSheet
 import com.studymate.app.ui.theme.Motion
 import com.studymate.app.ui.theme.StudyTheme
+import com.studymate.domain.model.Concept
 import com.studymate.domain.model.OutlineSection
 import com.studymate.domain.model.StudyPack
 
@@ -88,6 +92,7 @@ fun SummaryScreen(
     Column(
         Modifier
             .fillMaxSize()
+            .centeredContent(if (AdaptiveWidth.current.isExpanded) ContentWidth.Wide else ContentWidth.Reading)
             .systemBarsPadding(),
     ) {
         BackHeader(
@@ -116,6 +121,10 @@ private fun SummaryContent(
     onOpenCards: () -> Unit,
     onOpenSource: (chunkId: String) -> Unit,
 ) {
+    if (AdaptiveWidth.current.isExpanded) {
+        SummaryTwoPane(pack, expanded, onToggle, onOpenCards, onOpenSource)
+        return
+    }
     LazyColumn(
         contentPadding = PaddingValues(start = 20.dp, end = 20.dp, bottom = 32.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -137,22 +146,7 @@ private fun SummaryContent(
                 SectionTitle(stringResource(R.string.summary_concepts), Modifier.padding(top = 8.dp))
             }
             itemsIndexed(pack.summary.concepts, key = { index, _ -> "concept-$index" }) { index, concept ->
-                val source = pack.firstSourceOf(concept.sourceChunkIds)
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .staggerIn(index + pack.summary.outline.size)
-                        .clip(RoundedCornerShape(20.dp))
-                        .background(StudyTheme.colors.surface)
-                        .padding(horizontal = 16.dp, vertical = 14.dp),
-                    verticalArrangement = Arrangement.spacedBy(6.dp),
-                ) {
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Text(concept.term, style = MaterialTheme.typography.titleSmall, modifier = Modifier.weight(1f))
-                        source?.let { SourceChip(page = it.page, onClick = { onOpenSource(it.chunkId) }) }
-                    }
-                    MathText(concept.explain, style = MaterialTheme.typography.bodyMedium, color = StudyTheme.colors.inkSecondary)
-                }
+                ConceptCard(pack, concept, onOpenSource, Modifier.staggerIn(index + pack.summary.outline.size))
             }
         }
         item(key = "cta") {
@@ -230,5 +224,79 @@ private fun OutlineCard(
                 if (sourcePage != null) SourceChip(page = sourcePage, onClick = onOpenSource)
             }
         }
+    }
+}
+
+/** Tablet ngang: dàn ý bên trái, khái niệm bên phải, mỗi cột cuộn riêng. */
+@Composable
+private fun SummaryTwoPane(
+    pack: StudyPack,
+    expanded: Set<Int>,
+    onToggle: (Int) -> Unit,
+    onOpenCards: () -> Unit,
+    onOpenSource: (chunkId: String) -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(horizontal = 20.dp),
+        horizontalArrangement = Arrangement.spacedBy(24.dp),
+    ) {
+        LazyColumn(
+            modifier = Modifier.weight(1.15f),
+            contentPadding = PaddingValues(bottom = 32.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            item(key = "outline-title") { SectionTitle(stringResource(R.string.summary_outline)) }
+            itemsIndexed(pack.summary.outline, key = { index, _ -> "outline-$index" }) { index, section ->
+                OutlineCard(
+                    index = index,
+                    section = section,
+                    sourcePage = pack.firstSourceOf(section.sourceChunkIds)?.page,
+                    expanded = index in expanded,
+                    onToggle = { onToggle(index) },
+                    onOpenSource = { pack.firstSourceOf(section.sourceChunkIds)?.let { onOpenSource(it.chunkId) } },
+                    modifier = Modifier.staggerIn(index),
+                )
+            }
+            item(key = "cta") {
+                StudyButton(
+                    text = stringResource(R.string.summary_to_cards),
+                    onClick = onOpenCards,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(top = 8.dp),
+                )
+            }
+        }
+        LazyColumn(
+            modifier = Modifier.weight(1f),
+            contentPadding = PaddingValues(bottom = 32.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            item(key = "concepts-title") { SectionTitle(stringResource(R.string.summary_concepts)) }
+            itemsIndexed(pack.summary.concepts, key = { index, _ -> "concept-$index" }) { index, concept ->
+                ConceptCard(pack, concept, onOpenSource, Modifier.staggerIn(index + 1))
+            }
+        }
+    }
+}
+
+@Composable
+private fun ConceptCard(pack: StudyPack, concept: Concept, onOpenSource: (chunkId: String) -> Unit, modifier: Modifier) {
+    val source = pack.firstSourceOf(concept.sourceChunkIds)
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(20.dp))
+            .background(StudyTheme.colors.surface)
+            .padding(horizontal = 16.dp, vertical = 14.dp),
+        verticalArrangement = Arrangement.spacedBy(6.dp),
+    ) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            Text(concept.term, style = MaterialTheme.typography.titleSmall, modifier = Modifier.weight(1f))
+            source?.let { SourceChip(page = it.page, onClick = { onOpenSource(it.chunkId) }) }
+        }
+        MathText(concept.explain, style = MaterialTheme.typography.bodyMedium, color = StudyTheme.colors.inkSecondary)
     }
 }

@@ -45,6 +45,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.selected
@@ -56,6 +57,9 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.studymate.app.R
+import com.studymate.app.ui.adaptive.AdaptiveWidth
+import com.studymate.app.ui.adaptive.ContentWidth
+import com.studymate.app.ui.adaptive.centeredContent
 import com.studymate.app.ui.components.AnimatedProgressBar
 import com.studymate.app.ui.components.CircleIconButton
 import com.studymate.app.ui.components.LoadingView
@@ -64,8 +68,13 @@ import com.studymate.app.ui.components.MessageView
 import com.studymate.app.ui.components.SourceChip
 import com.studymate.app.ui.components.StudyButton
 import com.studymate.app.ui.components.StudyButtonStyle
+import com.studymate.app.ui.components.ShortcutHint
+import com.studymate.app.ui.components.choiceIndex
+import com.studymate.app.ui.components.isConfirm
+import com.studymate.app.ui.components.keyboardShortcuts
 import com.studymate.app.ui.components.pressScale
 import com.studymate.app.ui.feature.source.SourceRequest
+import com.studymate.app.ui.feature.source.SourcePanel
 import com.studymate.app.ui.feature.source.SourceSheet
 import com.studymate.app.ui.theme.Motion
 import com.studymate.app.ui.theme.StudyTheme
@@ -81,14 +90,21 @@ fun QuizRoute(
 ) {
     val state by viewModel.uiState.collectAsStateWithLifecycle()
     var source by remember { mutableStateOf<SourceRequest?>(null) }
+    // Tablet ngang: nguồn mở trong panel bên phải; còn lại: bottom sheet.
+    val useSidePanel = AdaptiveWidth.current.isExpanded
     QuizScreen(
         state = state,
         onClose = onClose,
         onOpenTutor = onOpenTutor,
         onEvent = viewModel::onEvent,
         onOpenSource = { source = SourceRequest(viewModel.documentId, it) },
+        sidePanel = if (useSidePanel) {
+            { modifier -> SourcePanel(request = source, onClose = { source = null }, modifier = modifier) }
+        } else {
+            null
+        },
     )
-    source?.let { SourceSheet(request = it, onDismiss = { source = null }) }
+    if (!useSidePanel) source?.let { SourceSheet(request = it, onDismiss = { source = null }) }
 }
 
 @Composable
@@ -98,10 +114,13 @@ fun QuizScreen(
     onOpenTutor: () -> Unit,
     onEvent: (QuizEvent) -> Unit,
     onOpenSource: (chunkId: String) -> Unit,
+    sidePanel: (@Composable (Modifier) -> Unit)? = null,
 ) {
     Column(
         Modifier
             .fillMaxSize()
+            .centeredContent(if (sidePanel != null) ContentWidth.Wide else ContentWidth.Reading)
+            .keyboardShortcuts { key -> handleQuizKey(state, key, onEvent) }
             .systemBarsPadding()
             .padding(horizontal = 20.dp, vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(18.dp),
@@ -113,6 +132,27 @@ fun QuizScreen(
                 Text("${state.index + 1}/${state.items.size}", style = MaterialTheme.typography.titleSmall)
             }
         }
+        if (sidePanel != null && state.result == null && state.items.isNotEmpty()) {
+            Row(Modifier.weight(1f), horizontalArrangement = Arrangement.spacedBy(24.dp)) {
+                QuizBody(state, onClose, onOpenTutor, onEvent, onOpenSource, Modifier.weight(1f))
+                sidePanel(Modifier.weight(0.8f).padding(bottom = 12.dp))
+            }
+        } else {
+            QuizBody(state, onClose, onOpenTutor, onEvent, onOpenSource, Modifier.weight(1f))
+        }
+    }
+}
+
+@Composable
+private fun QuizBody(
+    state: QuizUiState,
+    onClose: () -> Unit,
+    onOpenTutor: () -> Unit,
+    onEvent: (QuizEvent) -> Unit,
+    onOpenSource: (chunkId: String) -> Unit,
+    modifier: Modifier,
+) {
+    Column(modifier, verticalArrangement = Arrangement.spacedBy(10.dp)) {
         when {
             state.isLoading -> LoadingView()
             state.items.isEmpty() -> MessageView(
@@ -121,29 +161,51 @@ fun QuizScreen(
                 actionLabel = stringResource(R.string.action_back),
                 onAction = onClose,
             )
-            state.result != null -> ResultContent(state.result, onOpenTutor, onRetry = { onEvent(QuizEvent.Retry) })
-            else -> AnimatedContent(
-                targetState = state.index,
-                transitionSpec = {
-                    (slideInHorizontally(tween(420, easing = Motion.Emphasized)) { it / 8 } + fadeIn(tween(420))) togetherWith
-                        fadeOut(tween(120))
-                },
-                label = "question",
-            ) { index ->
-                val item = state.items[index]
-                QuestionContent(
-                    number = index + 1,
-                    item = item,
-                    selected = if (index == state.index) state.selected else null,
-                    isLast = state.isLast,
-                    isSubmitting = state.isSubmitting,
-                    sourcePage = item.sourceChunkIds.firstNotNullOfOrNull { state.chunkPages[it] },
-                    onEvent = onEvent,
-                    onOpenSource = { item.sourceChunkIds.firstOrNull()?.let(onOpenSource) },
+            state.result != null -> Box(Modifier.centeredContent(ContentWidth.Reading)) {
+                ResultContent(state.result, onOpenTutor, onRetry = { onEvent(QuizEvent.Retry) })
+            }
+            else -> {
+                AnimatedContent(
+                    targetState = state.index,
+                    transitionSpec = {
+                        (slideInHorizontally(tween(420, easing = Motion.Emphasized)) { it / 8 } + fadeIn(tween(420))) togetherWith
+                            fadeOut(tween(120))
+                    },
+                    modifier = Modifier.weight(1f),
+                    label = "question",
+                ) { index ->
+                    val item = state.items[index]
+                    QuestionContent(
+                        number = index + 1,
+                        item = item,
+                        selected = if (index == state.index) state.selected else null,
+                        isLast = state.isLast,
+                        isSubmitting = state.isSubmitting,
+                        sourcePage = item.sourceChunkIds.firstNotNullOfOrNull { state.chunkPages[it] },
+                        onEvent = onEvent,
+                        onOpenSource = { item.sourceChunkIds.firstOrNull()?.let(onOpenSource) },
+                    )
+                }
+                ShortcutHint(
+                    stringResource(if (state.isAnswered) R.string.shortcut_quiz_next else R.string.shortcut_quiz_select),
+                    Modifier.fillMaxWidth(),
                 )
             }
         }
     }
+}
+
+/** A–D hoặc 1–4 chọn đáp án; Enter/Space sang câu tiếp sau khi đã trả lời. */
+private fun handleQuizKey(state: QuizUiState, key: Key, onEvent: (QuizEvent) -> Unit): Boolean {
+    if (state.result != null || state.current == null || state.isSubmitting) return false
+    if (!state.isAnswered) {
+        val index = key.choiceIndex() ?: return false
+        onEvent(QuizEvent.Select(index))
+        return true
+    }
+    if (!key.isConfirm) return false
+    onEvent(QuizEvent.Next)
+    return true
 }
 
 @Composable

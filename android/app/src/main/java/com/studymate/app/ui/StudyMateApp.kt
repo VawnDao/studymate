@@ -9,14 +9,18 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.layout.width
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.VerticalDivider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -33,7 +37,9 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.studymate.app.ui.adaptive.AdaptiveWidth
 import com.studymate.app.ui.components.BottomNavBar
+import com.studymate.app.ui.components.StudyNavRail
 import com.studymate.app.ui.components.TopLevelTab
 import com.studymate.app.ui.feature.add.AddAction
 import com.studymate.app.ui.feature.add.AddDocumentSheet
@@ -44,12 +50,16 @@ import com.studymate.app.ui.navigation.TodayRoute
 import com.studymate.app.ui.theme.Motion
 import com.studymate.app.ui.theme.StudyTheme
 
-/** Khung app: NavHost + thanh điều hướng nổi + sheet "Thêm tài liệu" dùng chung. */
+/**
+ * Khung app: NavHost + điều hướng + sheet "Thêm tài liệu" dùng chung.
+ * Điện thoại: thanh điều hướng nổi ở dưới, chỉ hiện ở 2 tab gốc.
+ * Tablet / máy gập / điện thoại ngang: Navigation Rail bên trái, luôn hiện.
+ */
 @Composable
 fun StudyMateApp(navController: NavHostController = rememberNavController()) {
     val backStackEntry by navController.currentBackStackEntryAsState()
-    val destination = backStackEntry?.destination
-    val currentTab = destination.topLevelTab()
+    val currentTab = backStackEntry?.destination.topLevelTab()
+    val useRail = !AdaptiveWidth.current.isCompact
     val snackbarHostState = remember { SnackbarHostState() }
 
     var showAddSheet by rememberSaveable { mutableStateOf(false) }
@@ -61,10 +71,10 @@ fun StudyMateApp(navController: NavHostController = rememberNavController()) {
 
     val systemBars = WindowInsets.systemBars.asPaddingValues()
     val topLevelPadding = PaddingValues(
-        start = 20.dp,
-        end = 20.dp,
-        top = systemBars.calculateTopPadding() + 16.dp,
-        bottom = systemBars.calculateBottomPadding() + 120.dp,
+        start = if (useRail) 32.dp else 20.dp,
+        end = if (useRail) 32.dp else 20.dp,
+        top = systemBars.calculateTopPadding() + if (useRail) 28.dp else 16.dp,
+        bottom = systemBars.calculateBottomPadding() + if (useRail) 32.dp else 120.dp,
     )
 
     Box(
@@ -72,27 +82,35 @@ fun StudyMateApp(navController: NavHostController = rememberNavController()) {
             .fillMaxSize()
             .background(StudyTheme.colors.background),
     ) {
-        StudyMateNavHost(
-            navController = navController,
-            topLevelPadding = topLevelPadding,
-            snackbarHostState = snackbarHostState,
-            onAdd = openAdd,
-        )
-
-        AnimatedVisibility(
-            visible = currentTab != null,
-            enter = slideInVertically(tween(Motion.LONG, easing = Motion.Emphasized)) { it } + fadeIn(),
-            exit = slideOutVertically(tween(Motion.SHORT)) { it } + fadeOut(tween(Motion.SHORT)),
-            modifier = Modifier.align(Alignment.BottomCenter),
-        ) {
-            BottomNavBar(
-                current = currentTab ?: TopLevelTab.TODAY,
-                onSelect = { tab -> navController.navigateToTab(tab) },
-                onAdd = { openAdd(null) },
-                modifier = Modifier
-                    .navigationBarsPadding()
-                    .padding(start = 16.dp, end = 16.dp, bottom = 12.dp),
-            )
+        if (useRail) {
+            Row(Modifier.fillMaxSize()) {
+                StudyNavRail(
+                    current = currentTab,
+                    onSelect = { navController.navigateToTab(it) },
+                    onAdd = { openAdd(null) },
+                )
+                VerticalDivider(Modifier.fillMaxHeight().width(1.dp), color = StudyTheme.colors.divider)
+                Box(Modifier.weight(1f)) {
+                    StudyMateNavHost(navController, topLevelPadding, snackbarHostState, openAdd)
+                }
+            }
+        } else {
+            StudyMateNavHost(navController, topLevelPadding, snackbarHostState, openAdd)
+            AnimatedVisibility(
+                visible = currentTab != null,
+                enter = slideInVertically(tween(Motion.LONG, easing = Motion.Emphasized)) { it } + fadeIn(),
+                exit = slideOutVertically(tween(Motion.SHORT)) { it } + fadeOut(tween(Motion.SHORT)),
+                modifier = Modifier.align(Alignment.BottomCenter),
+            ) {
+                BottomNavBar(
+                    current = currentTab ?: TopLevelTab.TODAY,
+                    onSelect = { navController.navigateToTab(it) },
+                    onAdd = { openAdd(null) },
+                    modifier = Modifier
+                        .navigationBarsPadding()
+                        .padding(start = 16.dp, end = 16.dp, bottom = 12.dp),
+                )
+            }
         }
 
         SnackbarHost(
@@ -100,7 +118,7 @@ fun StudyMateApp(navController: NavHostController = rememberNavController()) {
             modifier = Modifier
                 .align(Alignment.BottomCenter)
                 .navigationBarsPadding()
-                .padding(bottom = 96.dp),
+                .padding(bottom = if (useRail) 24.dp else 96.dp),
         )
     }
 

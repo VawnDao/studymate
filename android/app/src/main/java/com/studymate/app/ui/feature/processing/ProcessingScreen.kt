@@ -46,6 +46,8 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.studymate.app.R
+import com.studymate.app.ui.adaptive.ContentWidth
+import com.studymate.app.ui.adaptive.centeredContent
 import com.studymate.app.ui.common.ObserveAsEvents
 import com.studymate.app.ui.common.messageRes
 import com.studymate.app.ui.components.AnimatedProgressBar
@@ -82,6 +84,7 @@ fun ProcessingScreen(state: ProcessingUiState, onBack: () -> Unit, onRetry: () -
     Column(
         modifier = Modifier
             .fillMaxSize()
+            .centeredContent(ContentWidth.Focus)
             .systemBarsPadding()
             .padding(horizontal = 20.dp, vertical = 12.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp),

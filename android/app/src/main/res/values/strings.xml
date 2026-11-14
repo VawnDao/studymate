@@ -118,6 +118,16 @@
     <string name="source_page">Trang %1$d</string>
     <string name="source_footnote">Đoạn được tô vàng là căn cứ AI dùng để tạo nội dung này.</string>
     <string name="source_error_title">Không mở được đoạn nguồn</string>
+    <string name="source_close">Đóng nguồn</string>
+    <string name="source_panel_title">Nguồn sẽ hiện ở đây</string>
+    <string name="source_panel_hint">Chạm vào chip Nguồn để mở đoạn gốc ngay bên cạnh, không phải rời màn đang học.</string>
+
+    <!-- Phím tắt (tablet có bàn phím) -->
+    <string name="shortcut_cards_front">Phím tắt: Space hoặc Enter để lật thẻ</string>
+    <string name="shortcut_cards_back">Phím tắt: 1 Quên · 2 Khó · 3 Nhớ · 4 Dễ</string>
+    <string name="shortcut_quiz_select">Phím tắt: A–D hoặc 1–4 để chọn đáp án</string>
+    <string name="shortcut_quiz_next">Phím tắt: Enter để sang câu tiếp</string>
+    <string name="shortcut_tutor">Enter để gửi · Shift + Enter để xuống dòng</string>
 
     <!-- Flashcard -->
     <string name="cards_close">Đóng phiên ôn</string>

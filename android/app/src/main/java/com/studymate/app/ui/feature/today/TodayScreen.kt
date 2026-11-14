@@ -6,6 +6,12 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import com.studymate.app.ui.adaptive.AdaptiveWidth
+import com.studymate.app.ui.adaptive.ContentWidth
+import com.studymate.app.ui.adaptive.centeredContent
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -77,8 +83,14 @@ private fun TodayContent(
     onOpenDocument: (DocumentWithDue) -> Unit,
     onAdd: (AddAction?) -> Unit,
 ) {
+    if (AdaptiveWidth.current.isExpanded) {
+        TodayTwoPane(overview, contentPadding, onReviewDue, onOpenDocument, onAdd)
+        return
+    }
     LazyColumn(
-        modifier = Modifier.fillMaxSize(),
+        modifier = Modifier
+            .fillMaxSize()
+            .centeredContent(ContentWidth.Reading),
         contentPadding = contentPadding,
         verticalArrangement = Arrangement.spacedBy(20.dp),
     ) {
@@ -113,6 +125,77 @@ private fun TodayContent(
         }
         if (overview.recent.isNotEmpty()) {
             item(key = "recent-title") { SectionTitle(stringResource(R.string.today_recent), Modifier.staggerIn(3)) }
+            items(overview.recent, key = { it.document.id }) { item ->
+                DocumentRow(item = item, onClick = { onOpenDocument(item) }, modifier = Modifier.animateItem())
+            }
+        }
+    }
+}
+
+/** Tablet ngang: trái là thẻ chính + lối tắt, phải là danh sách tài liệu gần đây (cuộn riêng). */
+@Composable
+private fun TodayTwoPane(
+    overview: TodayOverview,
+    contentPadding: PaddingValues,
+    onReviewDue: () -> Unit,
+    onOpenDocument: (DocumentWithDue) -> Unit,
+    onAdd: (AddAction?) -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxSize()
+            .centeredContent(ContentWidth.Wide)
+            .padding(contentPadding),
+        horizontalArrangement = Arrangement.spacedBy(28.dp),
+    ) {
+        Column(
+            modifier = Modifier
+                .weight(1.1f)
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(20.dp),
+        ) {
+            Column(Modifier.staggerIn(0)) {
+                Text(stringResource(R.string.today_greeting), style = MaterialTheme.typography.bodyMedium, color = StudyTheme.colors.inkMuted)
+                Text(stringResource(R.string.today_title), style = MaterialTheme.typography.headlineLarge)
+            }
+            HeroCard(overview, onReviewDue, onAdd, Modifier.staggerIn(1))
+            Row(Modifier.staggerIn(2), horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                ShortcutTile(
+                    title = stringResource(R.string.add_camera),
+                    subtitle = stringResource(R.string.add_camera_sub_short),
+                    icon = Icons.Outlined.CameraAlt,
+                    container = StudyTheme.colors.peach,
+                    onClick = { onAdd(AddAction.CAMERA) },
+                    modifier = Modifier.weight(1f),
+                )
+                ShortcutTile(
+                    title = stringResource(R.string.add_pdf),
+                    subtitle = stringResource(R.string.add_pdf_sub_short),
+                    icon = Icons.Outlined.PictureAsPdf,
+                    container = StudyTheme.colors.sky,
+                    onClick = { onAdd(AddAction.PDF) },
+                    modifier = Modifier.weight(1f),
+                )
+            }
+        }
+        LazyColumn(
+            modifier = Modifier
+                .weight(1f)
+                .fillMaxHeight(),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            item(key = "recent-title") {
+                SectionTitle(stringResource(R.string.today_recent), Modifier.padding(top = 8.dp).staggerIn(3))
+            }
+            if (overview.recent.isEmpty()) {
+                item(key = "recent-empty") {
+                    Text(
+                        stringResource(R.string.library_empty_body),
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = StudyTheme.colors.inkMuted,
+                    )
+                }
+            }
             items(overview.recent, key = { it.document.id }) { item ->
                 DocumentRow(item = item, onClick = { onOpenDocument(item) }, modifier = Modifier.animateItem())
             }

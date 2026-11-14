@@ -286,6 +286,35 @@ object Motion {
 
 **Không làm:** parallax, animation lặp liên tục ngoài 2 chỗ (bước đang chạy, chấm đang gõ), hiệu ứng làm chậm thao tác học (mọi animation không chặn chạm).
 
+### 10.2 Tablet & màn hình lớn (đã triển khai)
+
+Phân loại theo `WindowWidthSizeClass` (Material 3), tính lại khi xoay màn hoặc đổi kích thước cửa sổ (`ui/adaptive/Adaptive.kt`):
+
+| Nhóm | Thiết bị điển hình | Điều hướng | Bố cục |
+|---|---|---|---|
+| COMPACT (< 600dp) | Điện thoại dọc | Thanh nổi dưới, chỉ ở 2 tab gốc | 1 cột |
+| MEDIUM (600–839dp) | Tablet dọc, máy gập mở, điện thoại ngang | **Navigation Rail** trái, luôn hiện | 1 cột căn giữa, tối đa 680–760dp |
+| EXPANDED (≥ 840dp) | Tablet ngang, Chromebook | Navigation Rail | 2 cột / lưới, tối đa 1120dp |
+
+| Màn | Tablet |
+|---|---|
+| Hôm nay | Ngang: trái là lời chào, thẻ chính, lối tắt; phải là tài liệu gần đây (cuộn riêng) |
+| Thư viện | Lưới thẻ tài liệu, cột tối thiểu 320dp |
+| Hub | Ngang: 4 ô Tóm tắt · Flashcard · Quiz · Gia sư trên một hàng |
+| Tóm tắt | Ngang: dàn ý trái, khái niệm phải |
+| Flashcard | Căn giữa 680dp, chữ thẻ lớn hơn (36sp / 32sp) |
+| Quiz | Ngang: câu hỏi trái + **panel Nguồn** phải (không che câu hỏi) |
+| Gia sư | Ngang: chat trái + **panel Nguồn** phải, vừa hỏi vừa đối chiếu tài liệu |
+| Sheet Thêm / Nguồn | Bottom sheet Material 3, tối đa 640dp, căn giữa |
+
+**Phím tắt** (tablet có bàn phím, Chromebook), gợi ý phím chỉ hiện trên màn lớn:
+
+| Màn | Phím |
+|---|---|
+| Flashcard | Space / Enter: lật thẻ · 1 Quên · 2 Khó · 3 Nhớ · 4 Dễ |
+| Quiz | A–D hoặc 1–4: chọn đáp án · Enter / Space: câu tiếp |
+| Gia sư | Enter: gửi · Shift + Enter: xuống dòng |
+
 ## 11. `MathText` (công thức)
 
 **Đã triển khai (MVP):** `MathText` dùng `LatexToUnicode` chuyển công thức đơn giản trong `$...$` sang ký tự Unicode rồi hiển thị bằng `Text` (CO₂, C₆H₁₂O₆, x², →, ×, √, a/b, chữ Hy Lạp). Không cần WebView, không tải gì từ mạng, có unit test.
