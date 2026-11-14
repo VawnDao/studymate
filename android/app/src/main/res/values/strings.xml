@@ -60,6 +60,8 @@
     <!-- Thư viện -->
     <string name="library_title">Thư viện</string>
     <string name="library_hint">Giữ lâu một tài liệu để xoá.</string>
+    <string name="library_subject_all">Tất cả</string>
+    <string name="library_subject_chip">%1$s (%2$d)</string>
     <string name="library_empty_title">Chưa có tài liệu</string>
     <string name="library_empty_body">Tải PDF hoặc chụp vở để AI tạo bài ôn cho bạn.</string>
     <string name="library_delete">Xoá</string>

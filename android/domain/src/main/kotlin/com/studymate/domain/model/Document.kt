@@ -10,6 +10,7 @@ data class Document(
     val sourceType: SourceType,
     val status: ProcessingStatus,
     val createdAt: Instant,
+    val subject: String = "",
 )
 
 enum class SourceType { PDF, IMAGES }

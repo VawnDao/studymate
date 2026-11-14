@@ -10,6 +10,7 @@ data class StudyPack(
     val flashcards: List<FlashcardContent>,
     val quiz: List<QuizItem>,
     val chunkPages: Map<String, Int>,
+    val subject: String = "",
 ) {
     fun pageOf(chunkId: String): Int? = chunkPages[chunkId]
 
