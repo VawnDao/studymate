@@ -138,7 +138,7 @@ private fun SummaryContent(
                 expanded = index in expanded,
                 onToggle = { onToggle(index) },
                 onOpenSource = { pack.firstSourceOf(section.sourceChunkIds)?.let { onOpenSource(it.chunkId) } },
-                modifier = Modifier.staggerIn(index),
+                modifier = Modifier,
             )
         }
         if (pack.summary.concepts.isNotEmpty()) {
@@ -146,7 +146,7 @@ private fun SummaryContent(
                 SectionTitle(stringResource(R.string.summary_concepts), Modifier.padding(top = 8.dp))
             }
             itemsIndexed(pack.summary.concepts, key = { index, _ -> "concept-$index" }) { index, concept ->
-                ConceptCard(pack, concept, onOpenSource, Modifier.staggerIn(index + pack.summary.outline.size))
+                ConceptCard(pack, concept, onOpenSource, Modifier)
             }
         }
         item(key = "cta") {
@@ -256,7 +256,7 @@ private fun SummaryTwoPane(
                     expanded = index in expanded,
                     onToggle = { onToggle(index) },
                     onOpenSource = { pack.firstSourceOf(section.sourceChunkIds)?.let { onOpenSource(it.chunkId) } },
-                    modifier = Modifier.staggerIn(index),
+                    modifier = Modifier,
                 )
             }
             item(key = "cta") {
@@ -276,7 +276,7 @@ private fun SummaryTwoPane(
         ) {
             item(key = "concepts-title") { SectionTitle(stringResource(R.string.summary_concepts)) }
             itemsIndexed(pack.summary.concepts, key = { index, _ -> "concept-$index" }) { index, concept ->
-                ConceptCard(pack, concept, onOpenSource, Modifier.staggerIn(index + 1))
+                ConceptCard(pack, concept, onOpenSource, Modifier)
             }
         }
     }
