@@ -18,11 +18,12 @@ Cấu hình trong `local.properties` (không commit):
 
 | Khoá | Mặc định | Ý nghĩa |
 |---|---|---|
-| `studymate.useFakeApi` | `true` | `true`: backend giả chạy ngay trong app, không cần server. `false`: gọi backend Go thật |
+| `studymate.useFakeApi` | `true` | `true`: backend giả chạy ngay trong app, không cần server. `false`: gọi StudyMate API |
 | `studymate.baseUrl` | `http://10.0.2.2:8080/` | Emulator gọi máy host qua `10.0.2.2`. Điện thoại thật: `http://<IP-laptop>:8080/` (cùng hotspot) |
-| `studymate.appToken` | `dev-token` | Header `X-App-Token`, phải trùng `APP_TOKEN` của backend |
 
 Đổi cấu hình xong thì build lại (`./gradlew installDebug`). Bản debug cho phép HTTP; bản release chỉ HTTPS.
+
+Khi dùng API thật, app tự gọi `POST /v1/auth/session`, lưu bearer token đã mã hoá bằng Android Keystore và tự xin session mới khi token hết hạn hoặc bị backend từ chối. Không cần cấu hình hay nhúng `APP_TOKEN`/OpenAI key trong app.
 
 ## Kiến trúc (Clean Architecture, 3 module)
 
@@ -37,7 +38,7 @@ Cấu hình trong `local.properties` (không commit):
 | Lớp | Nội dung chính |
 |---|---|
 | `domain` | `AppResult`/`DomainError` (không ném exception ra ngoài), `Sm2Scheduler`, 13 use case (`ImportDocument`, `ObserveProcessing`, `GetReviewSession`, `ReviewCard`, `SubmitQuiz`, `AskTutor`…) |
-| `data/remote` | `StudyMateApi` (Retrofit), DTO snake_case, `apiCall {}` chuyển HTTP/IO/timeout/JSON lỗi → `DomainError`, `AuthInterceptor` |
+| `data/remote` | `StudyMateApi` (Retrofit), DTO snake_case, `apiCall {}` chuyển HTTP/IO/timeout/JSON lỗi → `DomainError`, `MobileBearerInterceptor`, `MobileSessionAuthenticator`, token store mã hoá bằng Android Keystore |
 | `data/local` | Room: `documents` (lưu JSON bộ ôn tập để học offline), `cards` (lịch ôn SM-2), `quiz_attempts`; xoá tài liệu thì xoá theo khoá ngoại CASCADE |
 | `data/file` | Kiểm tra PDF (magic bytes, ≤ 10 MB, ≤ 20 trang); nén ảnh về JPEG 1600 px, xoay theo EXIF (backend không phải xử lý HEIC) |
 | `data/fake` | `FakeStudyMateApi`: mô phỏng đủ pipeline (7 trạng thái, ~0,9 s/bước), bộ ôn tập mẫu, gia sư theo kịch bản, cùng DTO và mã lỗi với API thật |
@@ -49,27 +50,25 @@ Quy ước:
 - Animation theo [FE.md mục 10.1](../docs/FE.md); Compose tự tắt animation khi máy bật giảm chuyển động.
 - Công thức `$...$` hiển thị qua `LatexToUnicode` (CO₂, x², →, √). WebView + KaTeX để dành cho công thức phức tạp.
 
-## Ghép với backend Go
+## Ghép với StudyMate API
 
-**Backend đang triển khai:** `https://studymate-api.nguyenquangminh623.workers.dev` (tài liệu: `/llms.txt`, `/docs/api.md`, `/openapi.yaml`). Hợp đồng của BE khớp với `api/openapi.yaml` của app; BE thêm mã `NOT_IMPLEMENTED` (501) cho endpoint chưa làm, app đã xử lý.
+**Backend:** `https://studymate-api.nguyenquangminh623.workers.dev` (tài liệu: [`/llms.txt`](https://studymate-api.nguyenquangminh623.workers.dev/llms.txt), [`/docs/api.md`](https://studymate-api.nguyenquangminh623.workers.dev/docs/api.md), [`/openapi.yaml`](https://studymate-api.nguyenquangminh623.workers.dev/openapi.yaml)). Mobile client tạo anonymous session 24 giờ qua `POST /v1/auth/session`; các request tài liệu dùng `Authorization: Bearer <access_token>`.
 
 ```properties
 # local.properties
 studymate.baseUrl=https://studymate-api.nguyenquangminh623.workers.dev/
-studymate.appToken=<token do nhóm BE cung cấp, không commit>
 studymate.useFakeApi=false
 ```
 
-Chạy local thay vì Worker:
+App tự quản lý bearer session, không yêu cầu token do nhóm BE cấp. Nếu chạy backend local, backend cần implement cùng `POST /v1/auth/session` và bearer auth như API đã triển khai.
 
-1. Backend implement đúng [`api/openapi.yaml`](../api/openapi.yaml). Dữ liệu mẫu để test: [`samples/pack_sample.json`](../samples/pack_sample.json), [`samples/chunks_sample.json`](../samples/chunks_sample.json).
-2. Chạy backend trên laptop (`:8080`), đặt `APP_TOKEN` trùng `studymate.appToken`.
-3. Trong `local.properties`: `studymate.useFakeApi=false`, `studymate.baseUrl=...` → `./gradlew installDebug`.
-4. Kiểm nhanh bằng `curl`:
+Kiểm tra nhanh endpoint tạo session:
 
 ```bash
-curl -H "X-App-Token: dev-token" -F "file=@quang-hop.pdf" -F "title=Quang hợp" http://localhost:8080/v1/documents
+curl -X POST https://studymate-api.nguyenquangminh623.workers.dev/v1/auth/session
 ```
+
+API trả `access_token`, `token_type`, `expires_in`, `expires_at`. App tự gửi bearer token; không log hoặc chia sẻ token này.
 
 **Những điểm app dựa vào (backend phải giữ đúng):**
 

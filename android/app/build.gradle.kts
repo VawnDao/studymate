@@ -29,7 +29,6 @@ android {
         versionName = "0.1.0"
 
         buildConfigField("String", "API_BASE_URL", "\"${config("studymate.baseUrl", "http://10.0.2.2:8080/")}\"")
-        buildConfigField("String", "APP_TOKEN", "\"${config("studymate.appToken", "dev-token")}\"")
         buildConfigField("boolean", "USE_FAKE_API", config("studymate.useFakeApi", "true"))
     }
 

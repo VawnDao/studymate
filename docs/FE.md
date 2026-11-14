@@ -56,7 +56,7 @@ DI: Hilt · Async: Coroutines + Flow · Nav: Navigation Compose
 
 Ghim tất cả trong `gradle/libs.versions.toml`. **Không nâng cấp phiên bản trong ngày thi.**
 
-**Cấu hình:** `minSdk 26`, `targetSdk` mới nhất, `compileSdk` mới nhất, JDK 17. `BuildConfig.BASE_URL`, `BuildConfig.APP_TOKEN` lấy từ `local.properties` (không commit).
+**Cấu hình:** `minSdk 26`, `targetSdk` mới nhất, `compileSdk` mới nhất, JDK 17. `BuildConfig.API_BASE_URL` lấy từ `local.properties` (không commit); app không chứa app token tĩnh.
 
 ## 4. Cấu trúc package
 
@@ -85,7 +85,7 @@ android/app/src/main/java/<pkg>/studymate/
 │  │            ReviewCardUseCase, SubmitQuizUseCase, AskTutorUseCase, GetChunkUseCase, DeleteDocumentUseCase
 │  └─ srs/      Sm2Scheduler.kt, ReviewRating.kt
 ├─ data/
-│  ├─ remote/   StudyMateApi.kt, dto/*.kt, AuthInterceptor.kt, ErrorMapper.kt
+│  ├─ remote/   StudyMateApi.kt, dto/*.kt, MobileBearerInterceptor.kt, MobileSessionAuthenticator.kt, SessionTokenStore.kt
 │  ├─ local/    AppDatabase.kt, dao/*.kt, entity/*.kt, Converters.kt
 │  ├─ repository/ DocumentRepositoryImpl.kt, StudyRepositoryImpl.kt, TutorRepositoryImpl.kt
 │  ├─ fake/     FakeRepositories.kt   # đọc assets/pack_sample.json, dùng khi chưa có backend
@@ -125,7 +125,8 @@ interface StudyMateApi {
 }
 ```
 
-- `AuthInterceptor` thêm header `X-App-Token`.
+- `MobileBearerInterceptor` thêm bearer token còn hạn. Nếu chưa có session hoặc backend trả `401`, `MobileSessionAuthenticator` gọi `POST /v1/auth/session` bằng HTTP client riêng không gắn auth, lưu token vào SharedPreferences được mã hoá bằng khoá Android Keystore, rồi thử lại request một lần.
+- Session mobile ẩn danh hết hạn sau 24 giờ; app tự xin session mới. Không nhúng `APP_TOKEN` hay OpenAI key vào app.
 - Timeout OkHttp: connect 10 s, read 60 s (upload), call 90 s.
 - JSON: `Json { ignoreUnknownKeys = true; explicitNulls = false }`.
 
@@ -355,7 +356,7 @@ Phân loại theo `WindowWidthSizeClass` (Material 3), tính lại khi xoay màn
 
 - Không thu thập tên, email, số điện thoại; không có tài khoản.
 - Không xin quyền bộ nhớ hay danh bạ; camera dùng `TakePicture` (app camera hệ thống) nên không cần quyền CAMERA.
-- `APP_TOKEN` chỉ chống người lạ gọi API, **không phải bí mật**; **API key OpenAI không bao giờ có trong app**.
+- App dùng anonymous bearer session 24 giờ, lưu mã hoá bằng Android Keystore; không nhúng app token hay **OpenAI API key** vào app.
 - Logging interceptor chỉ có ở build debug và không log body upload.
 - Ảnh chụp lưu ở `cacheDir`, xoá sau khi upload thành công.
 - Xoá tài liệu: gọi `DELETE` và xoá toàn bộ dữ liệu liên quan trong Room.

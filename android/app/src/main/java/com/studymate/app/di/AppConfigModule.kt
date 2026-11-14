@@ -16,7 +16,6 @@ object AppConfigModule {
     @Singleton
     fun provideApiConfig(): ApiConfig = ApiConfig(
         baseUrl = BuildConfig.API_BASE_URL.let { if (it.endsWith("/")) it else "$it/" },
-        appToken = BuildConfig.APP_TOKEN,
         useFakeApi = BuildConfig.USE_FAKE_API,
         enableHttpLogging = BuildConfig.DEBUG,
     )

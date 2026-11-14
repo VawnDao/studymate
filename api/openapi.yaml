@@ -1,12 +1,12 @@
-openapi: 3.0.3
+openapi: 3.1.0
 info:
   title: StudyMate API
   version: 1.0.0
   description: |
-    Hợp đồng giữa app Android (Kotlin) và backend (Go). Đây là nguồn sự thật:
-    DTO trong `android/data/.../remote/dto/Dtos.kt` và struct Go phải khớp file này.
+    Hợp đồng app Android với StudyMate API đang triển khai trên Cloudflare Workers.
+    Mobile clients create an anonymous 24-hour session at `/v1/auth/session` and
+    send its bearer token on protected API calls. `X-App-Token` is server-side only.
 
-    - Mọi request cần header `X-App-Token`.
     - JSON dùng snake_case, UTF-8.
     - Mọi lỗi trả về dạng `ErrorEnvelope`.
     - Dữ liệu mẫu: `samples/pack_sample.json`, `samples/chunks_sample.json`.
@@ -17,9 +17,27 @@ servers:
     description: Backend chạy trên laptop (emulator gọi qua http://10.0.2.2:8080)
 
 security:
-  - AppToken: []
+  - MobileBearer: []
 
 paths:
+  /v1/auth/session:
+    post:
+      summary: Tạo anonymous mobile bearer session (hạn 24 giờ)
+      security: []
+      responses:
+        '201':
+          description: Session created. Store the token in Android Keystore-backed storage.
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/MobileSession' }
+        '429': { $ref: '#/components/responses/Error' }
+        '503': { $ref: '#/components/responses/Error' }
+    delete:
+      summary: Thu hồi mobile session hiện tại
+      responses:
+        '204': { description: Session revoked }
+        '401': { $ref: '#/components/responses/Error' }
+
   /v1/documents:
     post:
       summary: Tải lên tài liệu (1 PDF hoặc 1–5 ảnh) và bắt đầu xử lý bất đồng bộ
@@ -149,6 +167,11 @@ components:
       type: apiKey
       in: header
       name: X-App-Token
+      description: Server-side development credential. Never include it in the mobile app.
+    MobileBearer:
+      type: http
+      scheme: bearer
+      description: Anonymous mobile token issued by POST /v1/auth/session; valid for 24 hours.
 
   parameters:
     DocumentId:
@@ -182,6 +205,15 @@ components:
         message:
           type: string
           description: Câu tiếng Việt để log/debug; app hiển thị câu riêng theo `code`.
+
+    MobileSession:
+      type: object
+      required: [access_token, token_type, expires_in, expires_at]
+      properties:
+        access_token: { type: string }
+        token_type: { type: string, enum: [Bearer] }
+        expires_in: { type: integer, const: 86400 }
+        expires_at: { type: string, format: date-time }
 
     DocumentStatus:
       type: object

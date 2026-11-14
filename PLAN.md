@@ -71,7 +71,7 @@ Thư viện ──(+ Thêm tài liệu: PDF / Chụp ảnh)──► Đang xử 
 │ Data layer    Repositories ─┬─ Remote: Retrofit/OkHttp + kotlinx.serialization│
 │                             └─ Local:  Room (cards, quiz_attempts, documents) │
 └──────────────────────────────────────┬────────────────────────────────────────┘
-                                       │ HTTPS/JSON  /v1/*   header X-App-Token
+                                       │ HTTPS/JSON  /v1/*   Authorization: Bearer session
                                        ▼
 ┌──────────────────────────── Backend Go (1 binary) ────────────────────────────┐
 │ transport/http   router · middleware (auth token, rate limit, body limit,     │
@@ -115,7 +115,7 @@ Thư viện ──(+ Thêm tài liệu: PDF / Chụp ảnh)──► Đang xử 
 | Công thức | `WebView` + KaTeX (MIT) đóng gói trong `assets/`, chỉ dùng cho đoạn có `$...$`; còn lại là `Text` thường |
 | Test | JUnit, Turbine (test Flow), Compose UI test cho 1–2 màn chính |
 
-`minSdk` 26, `targetSdk` mới nhất; build 1 variant `debug` cho demo; `BASE_URL` và `APP_TOKEN` qua `BuildConfig` (token này không phải bí mật thật, chỉ chống người lạ gọi endpoint).
+`minSdk` 26, `targetSdk` mới nhất; build 1 variant `debug` cho demo; `BASE_URL` qua `BuildConfig`. Mobile app tạo anonymous bearer session tại `/v1/auth/session`, không nhúng app token hay API key.
 
 ### 4.3 Backend Go: kiến trúc chuẩn
 
@@ -378,7 +378,7 @@ studymate/
 │     │  ├─ usecase/                               # ImportDocument, GetDueCards, ReviewCard, AskTutor…
 │     │  └─ srs/Sm2Scheduler.kt
 │     ├─ data/
-│     │  ├─ remote/ StudyMateApi.kt (Retrofit), dto/, AuthInterceptor.kt
+│     │  ├─ remote/ StudyMateApi.kt (Retrofit), dto/, MobileBearerInterceptor.kt, MobileSessionAuthenticator.kt
 │     │  ├─ local/  AppDatabase.kt, dao/, entity/, Converters.kt
 │     │  └─ repository/ DocumentRepositoryImpl.kt, StudyRepositoryImpl.kt, TutorRepositoryImpl.kt
 │     └─ di/ NetworkModule.kt, DatabaseModule.kt, RepositoryModule.kt
@@ -469,7 +469,7 @@ Bộ test 3 tài liệu **team có quyền sử dụng** (vở ghi tự viết, 
 - **Cache theo hash chỉ dùng chung trong phạm vi một thiết bị** ở MVP. Dùng chung giữa người dùng chỉ áp dụng cho tài liệu công khai đã duyệt (roadmap), để không lộ tài liệu của người này cho người khác.
 - Nội dung tài liệu tải lên là **dữ liệu không đáng tin**: đặt trong thẻ `<chunk>`, hướng dẫn model không làm theo lệnh bên trong.
 - Lọc nội dung: gia sư chỉ trả lời học tập; từ chối nội dung không phù hợp lứa tuổi.
-- API key chỉ ở backend `.env`; app gửi `X-App-Token`; kiểm tra MIME + kích thước file; tên file lưu ngẫu nhiên; không log nội dung tài liệu.
+- API key và app token phát triển chỉ ở backend; app dùng anonymous bearer session mã hoá bằng Android Keystore; kiểm tra MIME + kích thước file; tên file lưu ngẫu nhiên; không log nội dung tài liệu hay bearer token.
 - Bản quyền: người dùng chỉ tải tài liệu họ có quyền dùng (ghi trong điều khoản); demo chỉ dùng tài liệu của team.
 
 ## 15. Kịch bản demo (3 phút)

@@ -18,6 +18,6 @@ captures/
 .env
 *.env
 !.env.example
-data/
+/data/
 !android/data/
 bin/

@@ -83,14 +83,14 @@ backend/
 
 ## 5. API `/v1`
 
-Chung: JSON UTF-8; header bắt buộc `X-App-Token`; mọi lỗi dạng
+Chung: JSON UTF-8; mobile client tạo session ẩn danh qua `POST /v1/auth/session` rồi gửi `Authorization: Bearer <access_token>`; `X-App-Token` chỉ dành cho gọi server-side trong môi trường phát triển. Mọi lỗi dạng
 ```json
 { "error": { "code": "PDF_TOO_LONG", "message": "Tài liệu vượt 20 trang" } }
 ```
 
 | Mã | HTTP | Khi nào |
 |---|---|---|
-| `UNAUTHORIZED` | 401 | Sai/thiếu `X-App-Token` |
+| `UNAUTHORIZED` | 401 | Bearer session sai/hết hạn hoặc thiếu app token trong luồng server-side development |
 | `RATE_LIMITED` | 429 | Vượt 10 request/phút/IP (kèm `Retry-After`) |
 | `FILE_TOO_LARGE` | 413 | Body > 10 MB |
 | `PDF_TOO_LONG` | 422 | PDF > 20 trang |
@@ -295,7 +295,7 @@ RATE_PER_MIN=10
 ## 11. Log & quan sát
 
 - `slog` JSON: `ts, level, request_id, method, path, status, latency_ms`; pipeline log thêm `doc_id, step, duration_ms, tokens_in, tokens_out`.
-- **Không log:** nội dung tài liệu, câu hỏi của học sinh, API key, header `X-App-Token`.
+- **Không log:** nội dung tài liệu, câu hỏi của học sinh, API key, bearer session hay header `X-App-Token`.
 - Khi khởi động in tổng token đã dùng trong ngày (từ `usage.go`) để theo dõi chi phí.
 
 ## 12. Bảo mật
