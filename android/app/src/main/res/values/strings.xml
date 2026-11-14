@@ -19,7 +19,7 @@
     <!-- Lỗi -->
     <string name="error_network">Mất kết nối. Kiểm tra mạng rồi thử lại.</string>
     <string name="error_generic">Có lỗi xảy ra, thử lại nhé.</string>
-    <string name="error_file_too_large">Tệp lớn hơn 10 MB. Bạn thử chọn tệp nhỏ hơn nhé.</string>
+    <string name="error_file_too_large">Tệp lớn hơn 100 MB. Bạn thử chọn tệp nhỏ hơn nhé.</string>
     <string name="error_pdf_too_long">Tài liệu dài hơn 20 trang. Hãy tách thành nhiều phần.</string>
     <string name="error_unsupported_type">Chỉ hỗ trợ PDF, JPG, PNG.</string>
     <string name="error_too_many_images">Mỗi tài liệu tối đa 5 ảnh.</string>
@@ -55,7 +55,7 @@
     <string name="add_gallery">Chọn ảnh có sẵn</string>
     <string name="add_gallery_sub">Tối đa 5 ảnh mỗi tài liệu</string>
     <string name="add_uploading">Đang tải lên…</string>
-    <string name="add_limits">PDF tối đa 20 trang, 10 MB · tối đa 5 ảnh mỗi tài liệu</string>
+    <string name="add_limits">PDF tối đa 20 trang, 100 MB · tối đa 5 ảnh mỗi tài liệu</string>
 
     <!-- Thư viện -->
     <string name="library_title">Thư viện</string>
