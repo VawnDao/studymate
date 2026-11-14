@@ -1,11 +1,14 @@
 package com.studymate.app.ui.feature.library
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -14,6 +17,8 @@ import com.studymate.app.ui.adaptive.AdaptiveWidth
 import com.studymate.app.ui.adaptive.ContentWidth
 import com.studymate.app.ui.adaptive.centeredContent
 import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -95,7 +100,17 @@ fun LibraryScreen(
                         color = StudyTheme.colors.inkMuted,
                     )
                 }
-                itemsIndexed(state.items, key = { _, item -> item.document.id }) { index, item ->
+                if (state.subjects.isNotEmpty()) {
+                    item(key = "subjects") {
+                        SubjectFilterRow(
+                            subjects = state.subjects,
+                            selected = state.selectedSubject,
+                            totalCount = state.items.size,
+                            onSelect = { onEvent(LibraryEvent.SelectSubject(it)) },
+                        )
+                    }
+                }
+                itemsIndexed(state.filteredItems, key = { _, item -> item.document.id }) { index, item ->
                     DocumentRow(
                         item = item,
                         onClick = { onOpenDocument(item) },
@@ -165,7 +180,17 @@ private fun LibraryGrid(
                 )
             }
         } else {
-            gridItemsIndexed(state.items, key = { _, item -> item.document.id }) { index, item ->
+            if (state.subjects.isNotEmpty()) {
+                item(key = "subjects", span = { GridItemSpan(maxLineSpan) }) {
+                    SubjectFilterRow(
+                        subjects = state.subjects,
+                        selected = state.selectedSubject,
+                        totalCount = state.items.size,
+                        onSelect = { onEvent(LibraryEvent.SelectSubject(it)) },
+                    )
+                }
+            }
+            gridItemsIndexed(state.filteredItems, key = { _, item -> item.document.id }) { index, item ->
                 DocumentRow(
                     item = item,
                     onClick = { onOpenDocument(item) },
@@ -175,6 +200,41 @@ private fun LibraryGrid(
                         .staggerIn(index + 1),
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun SubjectFilterRow(
+    subjects: List<SubjectCount>,
+    selected: String?,
+    totalCount: Int,
+    onSelect: (String?) -> Unit,
+) {
+    val colors = StudyTheme.colors
+    val chipColors = FilterChipDefaults.filterChipColors(
+        selectedContainerColor = colors.primaryTint,
+        selectedLabelColor = colors.primaryStrong,
+    )
+    LazyRow(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    ) {
+        item(key = "all") {
+            FilterChip(
+                selected = selected == null,
+                onClick = { onSelect(null) },
+                label = { Text(stringResource(R.string.library_subject_chip, stringResource(R.string.library_subject_all), totalCount)) },
+                colors = chipColors,
+            )
+        }
+        items(subjects, key = { it.name }) { subject ->
+            FilterChip(
+                selected = selected == subject.name,
+                onClick = { onSelect(if (selected == subject.name) null else subject.name) },
+                label = { Text(stringResource(R.string.library_subject_chip, subject.name, subject.count)) },
+                colors = chipColors,
+            )
         }
     }
 }

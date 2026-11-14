@@ -13,6 +13,7 @@ data class DocumentEntity(
     val pages: Int,
     @ColumnInfo(name = "source_type") val sourceType: String,
     val status: String,
+    @ColumnInfo(name = "subject", defaultValue = "") val subject: String = "",
     /** JSON bộ ôn tập (đúng định dạng API) để học offline; null khi chưa đồng bộ. */
     @ColumnInfo(name = "pack_json") val packJson: String?,
     @ColumnInfo(name = "created_at") val createdAt: Long,

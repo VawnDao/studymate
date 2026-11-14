@@ -16,6 +16,7 @@ data class ApiErrorDto(
 data class DocumentStatusDto(
     val id: String,
     val title: String? = null,
+    val subject: String = "",
     val pages: Int = 0,
     @SerialName("source_type") val sourceType: String? = null,
     val status: String,
@@ -38,6 +39,7 @@ data class StudyPackDto(
 data class PackDocumentDto(
     val id: String,
     val title: String,
+    val subject: String = "",
     val pages: Int = 0,
     @SerialName("source_type") val sourceType: String = "pdf",
 )

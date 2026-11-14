@@ -19,6 +19,7 @@ internal fun DocumentEntity.toDomain() = Document(
     sourceType = sourceTypeFromWire(sourceType),
     status = ProcessingStatus.fromWire(status),
     createdAt = Instant.ofEpochMilli(createdAt),
+    subject = subject,
 )
 
 internal fun CardEntity.toDomain() = Flashcard(

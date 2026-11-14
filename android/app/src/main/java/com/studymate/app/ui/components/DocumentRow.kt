@@ -56,7 +56,7 @@ fun DocumentRow(
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        SubjectBadge(document.title)
+        SubjectBadge(document.subject.ifBlank { document.title })
         Column(Modifier.weight(1f)) {
             Text(document.title, style = MaterialTheme.typography.titleSmall, maxLines = 1)
             Text(
@@ -86,9 +86,11 @@ private fun subtitle(item: DocumentWithDue): String {
         SourceType.PDF -> stringResource(R.string.source_type_pdf)
         SourceType.IMAGES -> stringResource(R.string.source_type_images)
     }
-    return if (item.document.pages > 0) {
+    val meta = if (item.document.pages > 0) {
         stringResource(R.string.document_meta, source, pluralStringResource(R.plurals.pages, item.document.pages, item.document.pages))
     } else {
         source
     }
+    val subject = item.document.subject.trim()
+    return if (subject.isNotEmpty()) "$subject · $meta" else meta
 }

@@ -19,8 +19,8 @@
     <!-- Lỗi -->
     <string name="error_network">Mất kết nối. Kiểm tra mạng rồi thử lại.</string>
     <string name="error_generic">Có lỗi xảy ra, thử lại nhé.</string>
-    <string name="error_file_too_large">Tệp lớn hơn 10 MB. Bạn thử chọn tệp nhỏ hơn nhé.</string>
-    <string name="error_pdf_too_long">Tài liệu dài hơn 20 trang. Hãy tách thành nhiều phần.</string>
+    <string name="error_file_too_large">Tệp lớn hơn 100 MB. Bạn thử chọn tệp nhỏ hơn nhé.</string>
+    <string name="error_pdf_too_long">Tài liệu dài hơn 500 trang. Hãy tách thành nhiều phần.</string>
     <string name="error_unsupported_type">Chỉ hỗ trợ PDF, JPG, PNG.</string>
     <string name="error_too_many_images">Mỗi tài liệu tối đa 5 ảnh.</string>
     <string name="error_not_ready">Tài liệu đang được xử lý.</string>
@@ -47,7 +47,7 @@
     <!-- Thêm tài liệu -->
     <string name="add_document">Thêm tài liệu</string>
     <string name="add_pdf">Tải file PDF</string>
-    <string name="add_pdf_sub">Đề cương, giáo trình · tối đa 20 trang</string>
+    <string name="add_pdf_sub">Đề cương, giáo trình · tối đa 500 trang</string>
     <string name="add_pdf_sub_short">Đề cương, giáo trình</string>
     <string name="add_camera">Chụp vở / sách</string>
     <string name="add_camera_sub">Chữ viết tay, công thức toán</string>
@@ -55,11 +55,13 @@
     <string name="add_gallery">Chọn ảnh có sẵn</string>
     <string name="add_gallery_sub">Tối đa 5 ảnh mỗi tài liệu</string>
     <string name="add_uploading">Đang tải lên…</string>
-    <string name="add_limits">PDF tối đa 20 trang, 10 MB · tối đa 5 ảnh mỗi tài liệu</string>
+    <string name="add_limits">PDF tối đa 500 trang, 100 MB · tối đa 5 ảnh mỗi tài liệu</string>
 
     <!-- Thư viện -->
     <string name="library_title">Thư viện</string>
     <string name="library_hint">Giữ lâu một tài liệu để xoá.</string>
+    <string name="library_subject_all">Tất cả</string>
+    <string name="library_subject_chip">%1$s (%2$d)</string>
     <string name="library_empty_title">Chưa có tài liệu</string>
     <string name="library_empty_body">Tải PDF hoặc chụp vở để AI tạo bài ôn cho bạn.</string>
     <string name="library_delete">Xoá</string>
@@ -86,6 +88,8 @@
     <string name="processing_running">Đang chạy</string>
     <string name="processing_done">Xong</string>
     <string name="processing_footnote">Nội dung chỉ lấy từ tài liệu của bạn.</string>
+    <string name="processing_eta_running">Ước tính còn %1$s · Đã chạy %2$s</string>
+    <string name="processing_eta_done">Hoàn tất (%1$s)</string>
     <string name="processing_failed_title">Không xử lý được tài liệu</string>
     <string name="processing_error_title">Mất kết nối với máy chủ</string>
 
@@ -108,6 +112,8 @@
     <string name="podcast_intro">Tạo một audio tóm tắt để nghe lại tài liệu khi di chuyển hoặc nghỉ giải lao.</string>
     <string name="podcast_ai_badge">Audio do AI tạo</string>
     <string name="podcast_create">Tạo podcast</string>
+    <string name="podcast_generating_title">Đang tạo podcast…</string>
+    <string name="podcast_generating_eta">Ước tính ~30–60 giây · Đã chạy %1$ds</string>
     <string name="podcast_error_title">Chưa tạo được podcast</string>
     <string name="podcast_failed">Podcast chưa sẵn sàng. Bạn có thể thử lại.</string>
     <string name="podcast_no_audio">Backend chưa trả đường dẫn audio. Bạn vẫn có thể đọc script.</string>

@@ -32,7 +32,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -95,6 +97,30 @@ fun ProcessingScreen(state: ProcessingUiState, onBack: () -> Unit, onRetry: () -
             Text(state.title ?: stringResource(R.string.processing_untitled), style = MaterialTheme.typography.headlineSmall, maxLines = 2)
         }
         AnimatedProgressBar(progress = state.progress, color = StudyTheme.colors.primary, height = 10)
+        if (!state.hasProblem) {
+            var elapsedSeconds by remember { mutableIntStateOf(0) }
+            LaunchedEffect(state.currentStep >= PROCESSING_STEPS) {
+                if (state.currentStep >= PROCESSING_STEPS) return@LaunchedEffect
+                while (true) {
+                    kotlinx.coroutines.delay(1_000)
+                    elapsedSeconds++
+                }
+            }
+            val etaText = if (state.currentStep >= PROCESSING_STEPS) {
+                stringResource(R.string.processing_eta_done, formatElapsed(elapsedSeconds))
+            } else {
+                stringResource(
+                    R.string.processing_eta_running,
+                    estimateRemainingText(state.currentStep, elapsedSeconds),
+                    formatElapsed(elapsedSeconds),
+                )
+            }
+            Text(
+                text = etaText,
+                style = MaterialTheme.typography.bodySmall,
+                color = StudyTheme.colors.inkMuted,
+            )
+        }
 
         AnimatedContent(
             targetState = state.hasProblem,
@@ -217,4 +243,21 @@ private fun StepRow(index: Int, label: String, sub: String, state: StepState, mo
         }
         Text(status, style = MaterialTheme.typography.labelMedium, color = if (state == StepState.DONE) colors.success else colors.primary)
     }
+}
+
+private fun estimateRemainingText(step: Int, elapsedSeconds: Int): String = when (step) {
+    0 -> when {
+        elapsedSeconds >= 90 -> "~2–4 phút"
+        elapsedSeconds >= 25 -> "~1–3 phút"
+        else -> "~20–60 giây"
+    }
+    1 -> if (elapsedSeconds >= 45) "~1–3 phút" else "~30–90 giây"
+    2 -> if (elapsedSeconds >= 45) "~30–90 giây" else "~15–35 giây"
+    else -> "~10–25 giây"
+}
+
+private fun formatElapsed(seconds: Int): String = if (seconds < 60) {
+    "${seconds}s"
+} else {
+    "${seconds / 60}m ${seconds % 60}s"
 }

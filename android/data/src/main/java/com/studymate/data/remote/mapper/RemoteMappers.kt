@@ -46,6 +46,7 @@ internal fun SourceType.toWire(): String = when (this) {
 internal fun StudyPackDto.toDomain() = StudyPack(
     documentId = document.id,
     title = document.title,
+    subject = document.subject.trim(),
     pages = document.pages,
     sourceType = sourceTypeFromWire(document.sourceType),
     summary = Summary(
