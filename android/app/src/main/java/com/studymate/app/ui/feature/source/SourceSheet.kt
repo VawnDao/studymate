@@ -92,7 +92,13 @@ fun SourceSheet(
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             SourceHeader(state, onClose = null)
-            SourceBody(state, request.quote, onRetry = { viewModel.load(request.documentId, request.chunkId, force = true) })
+            Box(
+                modifier = Modifier
+                    .weight(1f, fill = false)
+                    .verticalScroll(rememberScrollState()),
+            ) {
+                SourceBody(state, request.quote, onRetry = { viewModel.load(request.documentId, request.chunkId, force = true) })
+            }
             StudyButton(text = stringResource(R.string.action_understood), onClick = onDismiss, modifier = Modifier.fillMaxWidth())
         }
     }
