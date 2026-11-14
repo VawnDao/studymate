@@ -26,5 +26,7 @@ fun ErrorCode.messageRes(): Int = when (this) {
     ErrorCode.RATE_LIMITED -> R.string.error_rate_limited
     ErrorCode.LLM_UNAVAILABLE -> R.string.error_llm_unavailable
     ErrorCode.EMPTY_INPUT -> R.string.error_empty_input
-    ErrorCode.UNAUTHORIZED, ErrorCode.INTERNAL, ErrorCode.UNKNOWN -> R.string.error_generic
+    ErrorCode.UNAUTHORIZED -> R.string.error_unauthorized
+    ErrorCode.NOT_IMPLEMENTED -> R.string.error_not_implemented
+    ErrorCode.INTERNAL, ErrorCode.UNKNOWN -> R.string.error_generic
 }

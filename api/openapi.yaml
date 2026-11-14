@@ -11,6 +11,8 @@ info:
     - Mọi lỗi trả về dạng `ErrorEnvelope`.
     - Dữ liệu mẫu: `samples/pack_sample.json`, `samples/chunks_sample.json`.
 servers:
+  - url: https://studymate-api.nguyenquangminh623.workers.dev
+    description: Backend triển khai trên Cloudflare Workers (repo nqmgaming/studymate-api)
   - url: http://localhost:8080
     description: Backend chạy trên laptop (emulator gọi qua http://10.0.2.2:8080)
 
@@ -176,7 +178,7 @@ components:
         code:
           type: string
           enum: [UNAUTHORIZED, RATE_LIMITED, FILE_TOO_LARGE, PDF_TOO_LONG, UNSUPPORTED_TYPE,
-                 TOO_MANY_IMAGES, NOT_READY, NOT_FOUND, LLM_UNAVAILABLE, INTERNAL]
+                 TOO_MANY_IMAGES, NOT_READY, NOT_FOUND, LLM_UNAVAILABLE, INTERNAL, NOT_IMPLEMENTED]
         message:
           type: string
           description: Câu tiếng Việt để log/debug; app hiển thị câu riêng theo `code`.

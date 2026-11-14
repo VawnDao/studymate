@@ -51,6 +51,17 @@ Quy ước:
 
 ## Ghép với backend Go
 
+**Backend đang triển khai:** `https://studymate-api.nguyenquangminh623.workers.dev` (tài liệu: `/llms.txt`, `/docs/api.md`, `/openapi.yaml`). Hợp đồng của BE khớp với `api/openapi.yaml` của app; BE thêm mã `NOT_IMPLEMENTED` (501) cho endpoint chưa làm, app đã xử lý.
+
+```properties
+# local.properties
+studymate.baseUrl=https://studymate-api.nguyenquangminh623.workers.dev/
+studymate.appToken=<token do nhóm BE cung cấp, không commit>
+studymate.useFakeApi=false
+```
+
+Chạy local thay vì Worker:
+
 1. Backend implement đúng [`api/openapi.yaml`](../api/openapi.yaml). Dữ liệu mẫu để test: [`samples/pack_sample.json`](../samples/pack_sample.json), [`samples/chunks_sample.json`](../samples/chunks_sample.json).
 2. Chạy backend trên laptop (`:8080`), đặt `APP_TOKEN` trùng `studymate.appToken`.
 3. Trong `local.properties`: `studymate.useFakeApi=false`, `studymate.baseUrl=...` → `./gradlew installDebug`.

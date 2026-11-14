@@ -28,6 +28,9 @@ enum class ErrorCode {
     NOT_READY,
     NOT_FOUND,
     LLM_UNAVAILABLE,
+
+    /** Backend đã khai báo endpoint nhưng chưa triển khai (HTTP 501). */
+    NOT_IMPLEMENTED,
     INTERNAL,
     EMPTY_INPUT,
     UNKNOWN;

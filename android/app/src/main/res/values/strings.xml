@@ -28,6 +28,8 @@
     <string name="error_rate_limited">Thao tác hơi nhanh, thử lại sau vài giây.</string>
     <string name="error_llm_unavailable">AI đang bận, thử lại sau ít phút.</string>
     <string name="error_empty_input">Bạn chưa chọn nội dung nào.</string>
+    <string name="error_unauthorized">App chưa được cấp quyền gọi máy chủ. Kiểm tra lại mã app (X-App-Token).</string>
+    <string name="error_not_implemented">Máy chủ chưa hỗ trợ tính năng này. Thử lại khi backend cập nhật nhé.</string>
 
     <!-- Hôm nay -->
     <string name="today_greeting">Chào bạn,</string>
